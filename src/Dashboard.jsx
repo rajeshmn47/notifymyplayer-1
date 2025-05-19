@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilters, setSelectedFilters] = useState({});
   const [filterValues, setFilterValues] = useState({ batsman: "virat kohli" });
-  const [isSuperAdmin, setIsSuperAdmin] = useState(true); // Simulating super admin status
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false); // Simulating super admin status
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedClip, setSelectedClip] = useState(null);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
