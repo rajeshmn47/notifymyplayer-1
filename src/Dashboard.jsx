@@ -171,10 +171,10 @@ export default function Dashboard() {
               <source src={`${URL}/mockvideos/${clip.clip}`} type="video/mp4" />
             </video>
             <CardContent className='relative'>
-              <p className="font-semibold">{clip.batsman}</p>
-              <p className="font-semibold">{clip.bowler}</p>
-              <p className="font-semibold">{clip.event}</p>
-              <p className="font-semibold">{clip.duration}</p>
+              <p className="font-semibold text-lg text-gray-800">{clip.batsman}</p>
+              <p className="text-sm text-gray-600">vs {clip.bowler}</p>
+              <p className="text-sm font-medium text-blue-600">{clip.event}</p>
+              {/*<p className="font-semibold">{clip.duration}</p>*/}
               {isSuperAdmin && (
                 <Checkbox
                   checked={selectedClips.includes(clip.clip)}

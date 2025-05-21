@@ -75,12 +75,15 @@ function Filters({ values, onChange, clips }) {
               <Label className="mb-1 block">{filter.label}</Label>
               <Select
                 value={values[filter.key] || ""}
-                onValueChange={(value) => onChange(filter.key, value)}
+                onValueChange={(value) => onChange(filter.key, value === "clear" ? null : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder={`Select ${filter.label}`} />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="clear" className="text-gray-500 italic">
+                    Select Option
+                  </SelectItem>
                   {filter.options.map((opt) => (
                     <SelectItem key={opt.id} value={opt.id}>
                       {opt.name}
