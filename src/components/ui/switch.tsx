@@ -7,7 +7,7 @@ function Switch({
   className,
   ...props
 }: React.ComponentProps<typeof SwitchPrimitive.Root>) {
-  console.log(props, "Switch props")
+  //console.log(props, "Switch props")
   return (
     <SwitchPrimitive.Root
       data-slot="switch"

@@ -12,6 +12,7 @@ import { HTTPS_URL, URL } from './constants/userConstants';
 import axios from 'axios';
 import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 import VideoTrimmer from './VideoTrimmer';
+import { inferDismissals } from './utils/utils';
 
 const filters = [
   'Match', 'Player', 'Shot Type', 'Over', 'Ball', 'Batting Team', 'Bowler', 'Striker', 'Non-Striker',
@@ -21,8 +22,8 @@ const filters = [
 
 export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState({});
-  const [filterValues, setFilterValues] = useState({ batsman: "virat kohli" });
+  const [selectedFilters, setSelectedFilters] = useState({ batsman: 'virat kohli' });
+  const [filterValues, setFilterValues] = useState({ batsman: 'virat kohli' });
   const [isSuperAdmin, setIsSuperAdmin] = useState(false); // Simulating super admin status
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedClip, setSelectedClip] = useState(null);
@@ -42,7 +43,11 @@ export default function Dashboard() {
         //const clipsWithDuration = await Promise.all(
         //  res.data.map((clip) => getClipWithDuration(clip))
         //);
-        setClips(res.data);
+        const enhancedClips = res.data.map((clip) => {
+          const inferred = inferDismissals(clip?.event, clip.commentary || "")
+          return { ...clip, ...inferred }
+        })
+        setClips(enhancedClips);
         //setClips(clipsWithDuration);
       } catch (err) {
         console.error("Error fetching clips:", err);
@@ -82,7 +87,7 @@ export default function Dashboard() {
   const handleEditSave = (updatedClip) => {
     // Mock request delay
     setTimeout(() => {
-      setClipList(prev =>
+      setClips(prev =>
         prev.map(c => c.clip === updatedClip.clip ? updatedClip : c)
       )
       alert("Clip updated (mock)")
@@ -133,8 +138,8 @@ export default function Dashboard() {
     });
   });
 
-  console.log(filterValues, 'filterValues');
-  console.log(filteredClips, 'filteredClips');
+  //console.log(clips, 'filterValues');
+  //console.log(filteredClips, 'filteredClips');
 
   return (
     <div className="p-4 space-y-4">

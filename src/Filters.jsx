@@ -17,8 +17,18 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Label } from "@/components/ui/label"
 import { Switch } from "./components/ui/switch"
 import { cn } from "@/lib/utils"
+import { useState } from "react"
+import FilterPopover from "./components/ui/FilterPopOver"
 
 function Filters({ values, onChange, clips }) {
+  const [open, setOpen] = React.useState(false);
+  const [openMap, setOpenMap] = useState({});
+
+  const togglePopover = (key, value) => {
+    console.log(key, value, 'toggling')
+    setOpenMap((prev) => ({ ...prev, [key]: !value }));
+  };
+
 
   const uniqueBatsmen = Array.from(
     new Set(clips.map((clip) => clip.batsman))
@@ -66,6 +76,9 @@ function Filters({ values, onChange, clips }) {
     }
 
   ]
+
+  console.log(openMap, "openMap")
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4 bg-muted rounded-md">
       {filterConfig.map((filter) => {
@@ -78,7 +91,7 @@ function Filters({ values, onChange, clips }) {
                 onValueChange={(value) => onChange(filter.key, value === "clear" ? null : value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={`Select ${filter.label}`} />
+                  <SelectValue placeholder={`Select ${filter.label}`} className="cursor-pointer" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="clear" className="text-gray-500 italic">
@@ -98,19 +111,24 @@ function Filters({ values, onChange, clips }) {
         if (filter.type === "searchable") {
           const selected = filter.options.find(o => o.id === values[filter.key])
           return (
+            <FilterPopover onChange={onChange} filter={filter} selected={selected} />
+          )
+        }
+          {/*const selected = filter.options.find(o => o.id === values[filter.key])
+          return (
             <div key={filter.key}>
               <Label className="mb-1 block">{filter.label}</Label>
-              <Popover>
+              <Popover open={openMap[filter.key] || false} onOpenChange={(val) => togglePopover(filter.key, openMap[filter.key])}>
                 <PopoverTrigger asChild>
-                  <div className="border rounded px-3 py-2 text-sm bg-white cursor-pointer flex justify-between">
-                    {selected ? selected.name : `Select ${filter.label}`}
-                    {selected && (
+                  <div className="border rounded px-3 py-2 text-sm bg-white cursor-pointer flex justify-between" onClick={() => setOpen(!open)}>
+                    {selected?.name ? selected.name : `Select ${filter.label}`}
+                    {selected?.name && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
                           onChange(filter.key, null) // Clear the selection
                         }}
-                        className="ml-2 text-gray-500 hover:text-black"
+                        className="ml-2 text-gray-500 hover:text-black cursor-pointer"
                       >
                         ✕
                       </button>
@@ -136,13 +154,14 @@ function Filters({ values, onChange, clips }) {
               </Popover>
             </div>
           )
-        }
+        }*/}
 
         if (filter.type === "boolean") {
           return (
             <div key={filter.key} className="flex items-center space-x-3">
               <Switch
                 id={filter.key}
+                className="cursor-pointer"
                 checked={values[filter.key] || false}
                 onCheckedChange={(value) => onChange(filter.key, value)}
 
