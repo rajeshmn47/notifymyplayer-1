@@ -92,6 +92,7 @@ export default function Dashboard() {
   };
 
   const handleMergeAndDownload = async () => {
+    setLoading(true)
     const response = await fetch(`${URL}/auth/merge`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -108,6 +109,7 @@ export default function Dashboard() {
     document.body.appendChild(a);
     a.click();
     a.remove();
+    setLoading(false)
   };
 
   const videos = Array.from({ length: 10 }).map((_, idx) => ({
@@ -178,6 +180,31 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 space-y-4">
+      {loading && (
+        <div className="flex items-center justify-center">
+          <svg
+            className="animate-spin h-5 w-5 text-gray-500"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              strokeWidth="4"
+              stroke="currentColor"
+              fill="none"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 1 1 16 0A8 8 0 0 1 4 12z"
+            />
+          </svg>
+        </div>
+      )
+
+      }
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Cricket Clips Dashboard</h1>
         <div className="flex items-center gap-2 w-full md:w-full">
