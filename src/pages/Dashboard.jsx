@@ -5,14 +5,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader } from "@/components/ui/dialog"
 import { Filter, Search } from 'lucide-react';
-import Filters from './Filters';
-import { Switch } from './components/ui/switch';
-import { API } from './actions/userAction';
-import { HTTPS_URL, URL } from './constants/userConstants';
+import Filters from '../components/Filters';
+import { Switch } from '../components/ui/switch';
+import { API } from '../actions/userAction';
+import { HTTPS_URL, URL } from '../constants/userConstants';
 import axios from 'axios';
 import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
-import VideoTrimmer from './VideoTrimmer';
-import { inferDismissals } from './utils/utils';
+import VideoTrimmer from '../VideoTrimmer';
+import { inferDismissals } from '../utils/utils';
 
 const filters = [
   'Match', 'Player', 'Shot Type', 'Over', 'Ball', 'Batting Team', 'Bowler', 'Striker', 'Non-Striker',
@@ -35,6 +35,7 @@ export default function Dashboard() {
   const editClipForm = useRef(null);
   const [clips, setClips] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedQuality, setSelectedQuality] = useState('720p');
 
   useEffect(() => {
     const fetchClips = async () => {
@@ -77,6 +78,37 @@ export default function Dashboard() {
   const handleFilterChange = (key, value) => {
     setFilterValues((prev) => ({ ...prev, [key]: value }))
   }
+
+  const handleDownloadSelected = () => {
+    selectedClips.forEach((clip) => {
+      const link = document.createElement("a");
+      link.href = `${URL}/mockvideos/${clip}`;
+      link.download = clip;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  };
+
+  const handleMergeAndDownload = async () => {
+    const response = await fetch(`${URL}/auth/merge`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clips: selectedClips }),
+    });
+    console.log(response, 'res');
+    const res = await response.json()
+    console.log(res, 'res');
+    const downloadUrl = `${URL}/mockvideos/${res.file}`;
+    const a = document.createElement('a');
+    a.target = '_blank';
+    a.href = downloadUrl;
+    a.download = res.file;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
 
   const videos = Array.from({ length: 10 }).map((_, idx) => ({
     id: idx,
@@ -133,12 +165,15 @@ export default function Dashboard() {
         return true;
       }
       // Case-insensitive partial match
+      if (key === 'shotType') {
+        return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
+      }
       return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
       //if((!duration)&&clip?.batsman) return true;
     });
   });
 
-  //console.log(clips, 'filterValues');
+  console.log(filterValues, 'filterValues');
   //console.log(filteredClips, 'filteredClips');
 
   return (
@@ -152,6 +187,52 @@ export default function Dashboard() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+        </div>
+      </div>
+      {/* 🆕 Video Quality Selector */}
+      <div className='flex justify-between'>
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium text-gray-700">Video Quality:</label>
+          <select
+            className="p-2 border border-gray-300 rounded"
+            value={selectedQuality}
+            onChange={(e) => setSelectedQuality(e.target.value)}
+          >
+            <option value="720p">High (720p)</option>
+            <option value="360p">Low (360p)</option>
+          </select>
+        </div>
+        <div className="flex flex-wrap gap-2 justify-end">
+          {!isSuperAdmin && (
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (selectedClips.length === filteredClips.length) {
+                    setSelectedClips([]); // Deselect all
+                  } else {
+                    setSelectedClips(filteredClips.map((clip) => clip.clip)); // Select all visible
+                  }
+                }}
+              >
+                {selectedClips.length === filteredClips.length ? 'Deselect All' : 'Select All'}
+              </Button>
+            </div>
+          )}
+          <Button
+            variant="secondary"
+            disabled={selectedClips.length === 0}
+            onClick={handleDownloadSelected}
+          >
+            📥 Download Selected
+          </Button>
+          <Button
+            variant="default"
+            disabled={selectedClips.length === 0}
+            onClick={handleMergeAndDownload}
+          >
+            🎞️ Combine & Download
+          </Button>
         </div>
       </div>
       <Filters values={filterValues} onChange={handleFilterChange} clips={clips} />
@@ -180,7 +261,7 @@ export default function Dashboard() {
               <p className="text-sm text-gray-600">vs {clip.bowler}</p>
               <p className="text-sm font-medium text-blue-600">{clip.event}</p>
               {/*<p className="font-semibold">{clip.duration}</p>*/}
-              {isSuperAdmin && (
+              {!isSuperAdmin && (
                 <Checkbox
                   checked={selectedClips.includes(clip.clip)}
                   onCheckedChange={() => toggleSelect(clip.clip)}

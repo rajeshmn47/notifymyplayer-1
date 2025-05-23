@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Label } from "@/components/ui/label"
-import { Switch } from "./components/ui/switch"
+import { Switch } from "./ui/switch"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
-import FilterPopover from "./components/ui/FilterPopOver"
+import FilterPopover from "./ui/FilterPopOver"
 
 function Filters({ values, onChange, clips }) {
   const [open, setOpen] = React.useState(false);
@@ -44,12 +44,38 @@ function Filters({ values, onChange, clips }) {
     name,
   }));
 
+  const shotTypes = [
+    { id: "cover_drive", name: "Cover Drive" },
+    { id: "straight_drive", name: "Straight Drive" },
+    { id: "on_drive", name: "On Drive" },
+    { id: "off_drive", name: "Off Drive" },
+    { id: "square_drive", name: "Square Drive" },
+    { id: "pull", name: "Pull" },
+    { id: "hook", name: "Hook" },
+    { id: "cut", name: "Cut" },
+    { id: "upper_cut", name: "Upper Cut" },
+    { id: "sweep", name: "Sweep" },
+    { id: "reverse_sweep", name: "Reverse Sweep" },
+    { id: "paddle_sweep", name: "Paddle Sweep" },
+    { id: "switch_hit", name: "Switch Hit" },
+    { id: "lofted_shot", name: "Lofted Shot" },
+    { id: "helicopter_shot", name: "Helicopter Shot" },
+    { id: "glance", name: "Glance" },
+    { id: "flick", name: "Flick" },
+    { id: "dab", name: "Dab" },
+    { id: "defensive_shot", name: "Defensive Shot" },
+    { id: "reverse_hit", name: "Reverse Hit" },
+    { id: "scoop", name: "Scoop" },
+    { id: "ramp_shot", name: "Ramp Shot" },
+    { id: "uppercut", name: "Uppercut" }
+  ]
+
   const filterConfig = [
     { type: "searchable", label: "Batsman", key: "batsman", options: uniqueBatsmen },
     { type: "searchable", label: "Bowler", key: "bowler", options: uniqueBowler },
     { type: "searchable", label: "Team", key: "team", options: [{ id: "rcb", name: "RCB" }, { id: "csk", name: "CSK" }] },
     { type: "select", label: "League", key: "league", options: [{ id: "ipl", name: "IPL" }, { id: "bbl", name: "BBL" }] },
-    { type: "select", label: "Shot Type", key: "shotType", options: [{ id: "cover_drive", name: "Cover Drive" }, { id: "hook", name: "Hook" }] },
+    { type: "select", label: "Shot Type", key: "shotType", options: shotTypes },
     { type: "select", label: "Bowler Type", key: "bowlerType", options: [{ id: "pace", name: "Pace" }, { id: "spin", name: "Spin" }] },
     { type: "select", label: "Batting Hand", key: "battingHand", options: [{ id: "left", name: "Left" }, { id: "right", name: "Right" }] },
     { type: "select", label: "Bowling Hand", key: "bowlingHand", options: [{ id: "left", name: "Left" }, { id: "right", name: "Right" }] },
@@ -114,7 +140,7 @@ function Filters({ values, onChange, clips }) {
             <FilterPopover onChange={onChange} filter={filter} selected={selected} />
           )
         }
-          {/*const selected = filter.options.find(o => o.id === values[filter.key])
+        {/*const selected = filter.options.find(o => o.id === values[filter.key])
           return (
             <div key={filter.key}>
               <Label className="mb-1 block">{filter.label}</Label>

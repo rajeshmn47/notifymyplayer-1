@@ -5,7 +5,6 @@
 @layer base {
   input, textarea, select, button {
     outline: none;
-    box-shadow: 0 0 0 2px var(--ring-color, #3b82f6); /* Replace with your desired ring color */
   }
 }
 
