@@ -40,6 +40,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchClips = async () => {
       try {
+        setLoading(true);
         const res = await axios.get(`${URL}/auth/allclips`);
         //const clipsWithDuration = await Promise.all(
         //  res.data.map((clip) => getClipWithDuration(clip))
@@ -181,30 +182,10 @@ export default function Dashboard() {
   return (
     <div className="p-4 space-y-4">
       {loading && (
-        <div className="flex items-center justify-center">
-          <svg
-            className="animate-spin h-5 w-5 text-gray-500"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              strokeWidth="4"
-              stroke="currentColor"
-              fill="none"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 1 1 16 0A8 8 0 0 1 4 12z"
-            />
-          </svg>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
         </div>
-      )
-
-      }
+      )}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Cricket Clips Dashboard</h1>
         <div className="flex items-center gap-2 w-full md:w-full">
