@@ -28,7 +28,7 @@ export default function About() {
 
       <h2 className="text-2xl font-semibold text-gray-800">Get in Touch</h2>
       <p className="text-gray-700 text-lg">
-        Have feedback, partnership ideas, or want to integrate your own clips? Reach out to us at <a href="mailto:support@cricketclips.ai" className="text-blue-600 underline">support@cricketclips.ai</a>
+        Have feedback, partnership ideas, or want to integrate your own clips? Reach out to us at <a href="mailto:rajeshmn47@gmail.com" className="text-blue-600 underline">rajeshmn47@gmail.com</a>
       </p>
     </div>
   );
