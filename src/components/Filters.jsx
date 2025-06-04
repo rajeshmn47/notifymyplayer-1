@@ -19,10 +19,12 @@ import { Switch } from "./ui/switch"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 import FilterPopover from "./ui/FilterPopOver"
+import { Button } from "@/components/ui/button"
 
 function Filters({ values, onChange, clips }) {
   const [open, setOpen] = React.useState(false);
   const [openMap, setOpenMap] = useState({});
+  const [filterMode, setFilterMode] = useState("basic"); // 'basic' or 'advanced'
 
   const togglePopover = (key, value) => {
     console.log(key, value, 'toggling')
@@ -142,60 +144,85 @@ function Filters({ values, onChange, clips }) {
     { type: "select", label: "Ball Type", key: "ballType", options: ballTypes },
   ]
 
-  console.log(openMap, "openMap")
+  // Define which filters are basic (show by default)
+  const basicFilterKeys = [
+    "batsman",
+    "bowler",
+    "team",
+    "ballType"
+  ];
+
+  // Filter config for current mode
+  const visibleFilters = filterMode === "basic"
+    ? filterConfig.filter(f => basicFilterKeys.includes(f.key))
+    : filterConfig;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4 bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-md">
-      {filterConfig.map((filter) => {
-        if (filter.type === "select") {
-          return (
-            <div key={filter.key} className="mb-2">
-              <Label className="mb-1 block text-blue-900 font-semibold tracking-wide">{filter.label}</Label>
-              <Select
-                value={values[filter.key] || ""}
-                onValueChange={(value) => onChange(filter.key, value === "clear" ? null : value)}
-              >
-                <SelectTrigger className="rounded-lg border-blue-200 bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 shadow-sm">
-                  <SelectValue placeholder={`Select ${filter.label}`} className="cursor-pointer text-gray-700" />
-                </SelectTrigger>
-                <SelectContent className="rounded-lg bg-white shadow-lg">
-                  <SelectItem value="clear" className="text-gray-400 italic">Select Option</SelectItem>
-                  {filter.options.map((opt) => (
-                    <SelectItem key={opt.id} value={opt.id} className="hover:bg-blue-50 focus:bg-blue-100">
-                      {opt.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )
-        }
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-blue-900 font-bold text-lg">Filters</span>
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-2"
+          onClick={() => setFilterMode(filterMode === "basic" ? "advanced" : "basic")}
+        >
+          {filterMode === "basic" ? "Show Advanced Filters" : "Show Fewer Filters"}
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-cols-fr gap-4 p-4 bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-md">
+        {visibleFilters.map((filter) => {
+          if (filter.type === "select") {
+            return (
+              <div key={filter.key} className="mb-2 w-full min-w-0">
+                <Label className="mb-1 block text-blue-900 font-semibold tracking-wide">{filter.label}</Label>
+                <Select
+                className="w-full"
+                  value={values[filter.key] || ""}
+                  onValueChange={(value) => onChange(filter.key, value === "clear" ? null : value)}
+                >
+                  <SelectTrigger className="w-full min-w-0 rounded-lg border-blue-200 bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 shadow-sm">
+                    <SelectValue placeholder={`Select ${filter.label}`} className="cursor-pointer text-gray-700" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-lg bg-white shadow-lg">
+                    <SelectItem value="clear" className="text-gray-400 italic">Select Option</SelectItem>
+                    {filter.options.map((opt) => (
+                      <SelectItem key={opt.id} value={opt.id} className="hover:bg-blue-50 focus:bg-blue-100">
+                        {opt.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )
+          }
 
-        if (filter.type === "searchable") {
-          const selected = filter.options.find(o => o.id === values[filter.key])
-          return (
-            <div key={filter.key} className="mb-2">
-              <FilterPopover onChange={onChange} filter={filter} selected={selected} />
-            </div>
-          )
-        }
+          if (filter.type === "searchable") {
+            const selected = filter.options.find(o => o.id === values[filter.key])
+            return (
+              <div key={filter.key} className="mb-2 w-full min-w-0">
+                <FilterPopover onChange={onChange} filter={filter} selected={selected} />
+              </div>
+            )
+          }
 
-        if (filter.type === "boolean") {
-          return (
-            <div key={filter.key} className="flex items-center space-x-3 mb-2 p-2 bg-white/70 rounded-lg shadow-sm">
-              <Switch
-                id={filter.key}
-                className="cursor-pointer focus:ring-2 focus:ring-blue-200"
-                checked={values[filter.key] || false}
-                onCheckedChange={(value) => onChange(filter.key, value)}
-              />
-              <Label htmlFor={filter.key} className="text-blue-900 font-medium">{filter.label}</Label>
-            </div>
-          )
-        }
+          if (filter.type === "boolean") {
+            return (
+              <div key={filter.key} className="flex items-center space-x-3 mb-2 p-2 bg-white/70 rounded-lg shadow-sm w-full min-w-0">
+                <Switch
+                  id={filter.key}
+                  className="cursor-pointer focus:ring-2 focus:ring-blue-200"
+                  checked={values[filter.key] || false}
+                  onCheckedChange={(value) => onChange(filter.key, value)}
+                />
+                <Label htmlFor={filter.key} className="text-blue-900 font-medium">{filter.label}</Label>
+              </div>
+            )
+          }
 
-        return null
-      })}
+          return null
+        })}
+      </div>
     </div>
   )
 }

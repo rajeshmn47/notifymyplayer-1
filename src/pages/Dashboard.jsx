@@ -201,7 +201,7 @@ export default function Dashboard() {
   //console.log(filteredClips, 'filteredClips');
 
   return (
-    <div className="p-2 sm:p-4 space-y-4 bg-gradient-to-br from-blue-50 to-white min-h-screen">
+    <div className="p-3 sm:p-4 space-y-4 bg-gradient-to-br from-blue-50 to-white min-h-screen">
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
@@ -224,10 +224,8 @@ export default function Dashboard() {
         </form>
       </div>
       {/* Video Quality Selector */}
-      <div
-        className="w-full max-w-xs sm:max-w-none flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-0"
-      >
-        <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 xs:gap-4 w-full sm:w-auto justify-between sm:justify-start">
+      <div className="w-full flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2">
+        <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 xs:gap-4 flex-1">
           <label className="text-xs sm:text-sm font-medium text-gray-700">Video Quality:</label>
           <select
             className="p-2 border border-gray-300 rounded bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 text-xs sm:text-sm w-full xs:w-auto"
@@ -238,9 +236,9 @@ export default function Dashboard() {
             <option value="360p">Low (360p)</option>
           </select>
         </div>
-        <div className="flex flex-col xs:flex-row flex-wrap gap-2 w-full sm:w-auto justify-end">
+        <div className="flex flex-col xs:flex-row flex-wrap gap-2 flex-1 justify-end">
           {!isAdmin && (
-            <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
+            <div className="flex items-center justify-end gap-2 w-full">
               <Button
                 variant="outline"
                 onClick={() => {

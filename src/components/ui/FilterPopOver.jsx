@@ -17,12 +17,12 @@ export default function FilterPopover({ filter, selected, onChange }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div>
+    <div className="w-full">
       <Label>{filter?.label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <div
-            className="border rounded h-[35px] px-3 py-1 my-1 text-sm bg-white cursor-pointer flex justify-between items-center w-[200px]"
+            className="border w-full rounded h-[35px] px-3 py-1 my-1 text-sm bg-white cursor-pointer flex justify-between items-center w-[200px]"
             role="button"
           >
             {selected?.name ? selected.name : `Select ${filter.label}`}
