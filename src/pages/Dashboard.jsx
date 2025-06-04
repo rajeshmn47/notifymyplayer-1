@@ -41,6 +41,43 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedQuality, setSelectedQuality] = useState('720p');
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+
+  const filteredClips = clips.filter((clip) => {
+    return Object.entries(filterValues).every(([key, value]) => {
+      if (!value) return true; // Skip empty filters
+      const clipValue = clip[key];
+      if (key === 'isWicket') return clip.event === 'WICKET';
+      if (key === 'isFour') return clip.event === 'FOUR';
+      if (key === 'isSix') return clip.event === 'SIX';
+      const duration = clip.duration;
+      if (key === 'durationRange') {
+        if (value === '0-2') return duration >= 0 && duration < 2;
+        if (value === '2-5') return duration >= 2 && duration < 5;
+        if (value === '5-10') return duration >= 5 && duration < 10;
+        if (value === '10+') return duration >= 10;
+        return true;
+      }
+      // Case-insensitive partial match
+      if (key === 'shotType') {
+        return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
+      }
+      if (key === 'ballType') {
+        return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
+      }
+      return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
+    });
+  });
+
+  // Calculate paginated clips
+  const paginatedClips = filteredClips.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  const totalPages = Math.ceil(filteredClips.length / itemsPerPage);
+
   // Only show admin controls if user is logged in and user.role is 'admin'
   const isAdmin = user && user.role === "admin";
   console.log(user, 'user')
@@ -160,61 +197,34 @@ export default function Dashboard() {
     setClips(prev => prev.filter(c => c._id !== clip._id));
   }
 
-  const filteredClips = clips.filter((clip) => {
-    return Object.entries(filterValues).every(([key, value]) => {
-      if (!value) return true; // Skip empty filters
-      const clipValue = clip[key];
-      if (key === 'isWicket') return clip.event === 'WICKET';
-      if (key === 'isFour') return clip.event === 'FOUR';
-      if (key === 'isSix') return clip.event === 'SIX';
-      const duration = clip.duration;
-      if (key === 'durationRange') {
-        if (value === '0-2') return duration >= 0 && duration < 2;
-        if (value === '2-5') return duration >= 2 && duration < 5;
-        if (value === '5-10') return duration >= 5 && duration < 10;
-        if (value === '10+') return duration >= 10;
-        return true;
-      }
-      // Case-insensitive partial match
-      if (key === 'shotType') {
-        return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
-      }
-       if (key === 'ballType') {
-        return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
-      }
-      return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
-      //if((!duration)&&clip?.batsman) return true;
-    });
-  });
-
   console.log(filterValues, 'filterValues');
   //console.log(filteredClips, 'filteredClips');
 
   return (
-    <div className="p-4 space-y-4 bg-gradient-to-br from-blue-50 to-white min-h-screen">
+    <div className="p-2 sm:p-4 space-y-4 bg-gradient-to-br from-blue-50 to-white min-h-screen">
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
         </div>
       )}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <h1 className="text-3xl font-extrabold text-blue-900 drop-shadow-sm">Cricket Clips Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-blue-900 drop-shadow-sm text-center w-full md:w-auto">Cricket Clips Dashboard</h1>
         <div className="flex items-center gap-2 w-full md:w-full">
           <Search className="text-muted-foreground" />
           <Input
             placeholder="Search clips or players..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-white/80 border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+            className="bg-white/80 border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base"
           />
         </div>
       </div>
       {/* Video Quality Selector */}
-      <div className='flex justify-between items-center'>
-        <div className="flex items-center gap-4">
+      <div className='flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0'>
+        <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
           <label className="text-sm font-medium text-gray-700">Video Quality:</label>
           <select
-            className="p-2 border border-gray-300 rounded bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+            className="p-2 border border-gray-300 rounded bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 text-sm"
             value={selectedQuality}
             onChange={(e) => setSelectedQuality(e.target.value)}
           >
@@ -222,9 +232,9 @@ export default function Dashboard() {
             <option value="360p">Low (360p)</option>
           </select>
         </div>
-        <div className="flex flex-wrap gap-2 justify-end">
+        <div className="flex flex-wrap gap-2 justify-end w-full sm:w-auto">
           {!isAdmin && (
-            <div className="flex items-center justify-end gap-2">
+            <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -234,7 +244,7 @@ export default function Dashboard() {
                     setSelectedClips(filteredClips.map((clip) => clip.clip)); // Select all visible
                   }
                 }}
-                className="border-blue-300 hover:bg-blue-50"
+                className="border-blue-300 hover:bg-blue-50 text-xs sm:text-base"
               >
                 {selectedClips.length === filteredClips.length ? 'Deselect All' : 'Select All'}
               </Button>
@@ -244,7 +254,7 @@ export default function Dashboard() {
             variant="secondary"
             disabled={selectedClips.length === 0}
             onClick={handleDownloadSelected}
-            className="bg-blue-100 text-blue-700 hover:bg-blue-200"
+            className="bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs sm:text-base"
           >
             📥 Download Selected
           </Button>
@@ -252,7 +262,7 @@ export default function Dashboard() {
             variant="default"
             disabled={selectedClips.length === 0}
             onClick={handleMergeAndDownload}
-            className="bg-blue-500 text-white hover:bg-blue-600"
+            className="bg-blue-500 text-white hover:bg-blue-600 text-xs sm:text-base"
           >
             🎞️ Combine & Download
           </Button>
@@ -263,26 +273,44 @@ export default function Dashboard() {
         <div className="flex justify-end">
           <Button
             variant="destructive"
-            className="text-white bg-red-500 border border-red-300 hover:bg-red-600"
+            className="text-white bg-red-500 border border-red-300 hover:bg-red-600 text-xs sm:text-base"
             onClick={deleteSelected}
           >
             Delete Selected ({selectedClips.length})
           </Button>
         </div>
       )}
-      <p className="text-sm text-muted-foreground mb-2">
-        {filteredClips.length} item{filteredClips.length !== 1 && "s"} selected
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-4">
-        {filteredClips.map(clip => (
+      <div className="flex flex-wrap items-center gap-4 justify-between mb-2">
+        <p className="text-sm text-muted-foreground">
+          {filteredClips.length} item{filteredClips.length !== 1 && "s"} selected
+        </p>
+        <div className="flex items-center gap-2">
+          <label htmlFor="itemsPerPage" className="text-sm text-gray-700 font-medium">Items per page:</label>
+          <select
+            id="itemsPerPage"
+            className="p-1 border border-gray-300 rounded bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 text-xs sm:text-base"
+            value={itemsPerPage}
+            onChange={e => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1); // Reset to first page on change
+            }}
+          >
+            {[6, 12, 24, 48, 100].map(num => (
+              <option key={num} value={num}>{num}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pt-4">
+        {paginatedClips.map(clip => (
           <Card key={clip._id} className="relative shadow-lg hover:shadow-2xl transition-shadow bg-white/90 border-blue-100">
-            <video controls className="w-full rounded-t-xl aspect-video bg-black">
+            <video controls className="w-full rounded-t-xl aspect-video bg-black min-h-[180px] sm:min-h-[220px] md:min-h-[240px]">
               <source src={`${URL}/mockvideos/${clip.clip}`} type="video/mp4" />
             </video>
             <CardContent className='relative space-y-1 pt-2'>
-              <p className="font-semibold text-lg text-blue-900">{clip.batsman}</p>
-              <p className="text-sm text-gray-600">vs {clip.bowler}</p>
-              <p className="text-sm font-medium text-blue-600">{clip.event}</p>
+              <p className="font-semibold text-base sm:text-lg text-blue-900">{clip.batsman}</p>
+              <p className="text-xs sm:text-sm text-gray-600">vs {clip.bowler}</p>
+              <p className="text-xs sm:text-sm font-medium text-blue-600">{clip.event}</p>
               {/*<p className="font-semibold">{clip.duration}</p>*/}
               {!isAdmin && (
                 <Checkbox
@@ -295,7 +323,7 @@ export default function Dashboard() {
                 <div className="flex gap-2 mt-2">
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="border-blue-300">Edit</Button>
+                      <Button variant="outline" size="sm" className="border-blue-300 text-xs sm:text-base">Edit</Button>
                     </DialogTrigger>
                     <DialogContent>
                       <EditClipForm clip={clip} onSave={handleEditSave} />
@@ -304,7 +332,7 @@ export default function Dashboard() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    className='text-white bg-red-500 border border-red-300 hover:bg-red-600'
+                    className='text-white bg-red-500 border border-red-300 hover:bg-red-600 text-xs sm:text-base'
                     onClick={() => handleDelete(clip)}
                   >
                     Delete
@@ -312,7 +340,7 @@ export default function Dashboard() {
                   <Button
                     variant="secondary"
                     size="sm"
-                    className="bg-blue-100 text-blue-700 hover:bg-blue-200"
+                    className="bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs sm:text-base"
                     onClick={() => setTrimmingClip(clip)}
                   >
                     ✂️ Trim
@@ -323,6 +351,30 @@ export default function Dashboard() {
           </Card>
         ))}
       </div>
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-6">
+          <Button
+            variant="outline"
+            className="px-2 sm:px-3 py-1 text-xs sm:text-base"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            Previous
+          </Button>
+          <span className="text-blue-900 font-semibold text-xs sm:text-base">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            className="px-2 sm:px-3 py-1 text-xs sm:text-base"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            Next
+          </Button>
+        </div>
+      )}
       {trimmingClip && (
         <Dialog open={!!trimmingClip} onOpenChange={() => setTrimmingClip(null)}>
           <DialogContent className="max-w-3xl">
