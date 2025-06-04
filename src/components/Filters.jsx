@@ -70,6 +70,45 @@ function Filters({ values, onChange, clips }) {
     { id: "uppercut", name: "Uppercut" }
   ]
 
+  const ballTypes = [
+    { id: "yorker", name: "Yorker" },
+    { id: "full_toss", name: "Full Toss" },
+    { id: "good_length", name: "Good Length" },
+    { id: "short_of_length", name: "Short of a Length" },
+    { id: "bouncer", name: "Bouncer" },
+    { id: "slow_ball", name: "Slow Ball" },
+    { id: "off_cutter", name: "Off Cutter" },
+    { id: "leg_cutter", name: "Leg Cutter" },
+    { id: "slower_bouncer", name: "Slower Bouncer" },
+    { id: "wide", name: "Wide" },
+    { id: "no_ball", name: "No Ball" },
+    { id: "beamer", name: "Beamer" },
+    { id: "length_ball", name: "Length Ball" },
+    { id: "full_length", name: "Full Length" },
+    { id: "half_volley", name: "Half Volley" },
+    { id: "short_ball", name: "Short Ball" },
+    { id: "back_of_length", name: "Back of a Length" },
+    { id: "overpitched", name: "Overpitched" },
+    { id: "inswinger", name: "Inswinger" },
+    { id: "outswinger", name: "Outswinger" },
+    { id: "reverse_swing", name: "Reverse Swing" },
+    { id: "googly", name: "Googly" },
+    { id: "doosra", name: "Doosra" },
+    { id: "carrom_ball", name: "Carrom Ball" },
+    { id: "top_spin", name: "Top Spin" },
+    { id: "flipper", name: "Flipper" },
+    { id: "arm_ball", name: "Arm Ball" },
+    { id: "seam_up", name: "Seam Up" },
+    { id: "cross_seam", name: "Cross Seam" },
+    { id: "leg_break", name: "Leg Break" },
+    { id: "off_break", name: "Off Break" },
+    { id: "knuckle_ball", name: "Knuckle Ball" },
+    { id: "split_finger", name: "Split Finger" },
+    { id: "slower_ball_bouncer", name: "Slower Ball Bouncer" },
+    { id: "reverse_swing_yorker", name: "Reverse Swing Yorker" },
+    { id: "other", name: "Other" }
+  ];
+
   const filterConfig = [
     { type: "searchable", label: "Batsman", key: "batsman", options: uniqueBatsmen },
     { type: "searchable", label: "Bowler", key: "bowler", options: uniqueBowler },
@@ -99,32 +138,30 @@ function Filters({ values, onChange, clips }) {
         { id: "5-10", name: "5-10 sec" },
         { id: "10+", name: "10+ sec" },
       ],
-    }
-
+    },
+    { type: "select", label: "Ball Type", key: "ballType", options: ballTypes },
   ]
 
   console.log(openMap, "openMap")
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4 bg-muted rounded-md">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4 bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-md">
       {filterConfig.map((filter) => {
         if (filter.type === "select") {
           return (
-            <div key={filter.key}>
-              <Label className="mb-1 block">{filter.label}</Label>
+            <div key={filter.key} className="mb-2">
+              <Label className="mb-1 block text-blue-900 font-semibold tracking-wide">{filter.label}</Label>
               <Select
                 value={values[filter.key] || ""}
                 onValueChange={(value) => onChange(filter.key, value === "clear" ? null : value)}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder={`Select ${filter.label}`} className="cursor-pointer" />
+                <SelectTrigger className="rounded-lg border-blue-200 bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 shadow-sm">
+                  <SelectValue placeholder={`Select ${filter.label}`} className="cursor-pointer text-gray-700" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="clear" className="text-gray-500 italic">
-                    Select Option
-                  </SelectItem>
+                <SelectContent className="rounded-lg bg-white shadow-lg">
+                  <SelectItem value="clear" className="text-gray-400 italic">Select Option</SelectItem>
                   {filter.options.map((opt) => (
-                    <SelectItem key={opt.id} value={opt.id}>
+                    <SelectItem key={opt.id} value={opt.id} className="hover:bg-blue-50 focus:bg-blue-100">
                       {opt.name}
                     </SelectItem>
                   ))}
@@ -137,62 +174,22 @@ function Filters({ values, onChange, clips }) {
         if (filter.type === "searchable") {
           const selected = filter.options.find(o => o.id === values[filter.key])
           return (
-            <FilterPopover onChange={onChange} filter={filter} selected={selected} />
-          )
-        }
-        {/*const selected = filter.options.find(o => o.id === values[filter.key])
-          return (
-            <div key={filter.key}>
-              <Label className="mb-1 block">{filter.label}</Label>
-              <Popover open={openMap[filter.key] || false} onOpenChange={(val) => togglePopover(filter.key, openMap[filter.key])}>
-                <PopoverTrigger asChild>
-                  <div className="border rounded px-3 py-2 text-sm bg-white cursor-pointer flex justify-between" onClick={() => setOpen(!open)}>
-                    {selected?.name ? selected.name : `Select ${filter.label}`}
-                    {selected?.name && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onChange(filter.key, null) // Clear the selection
-                        }}
-                        className="ml-2 text-gray-500 hover:text-black cursor-pointer"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="p-0 w-[200px] bg-white">
-                  <Command>
-                    <CommandInput placeholder={`Search ${filter.label}...`} />
-                    <CommandList>
-                      <CommandEmpty>No results found.</CommandEmpty>
-                      {filter.options.map((opt) => (
-                        <CommandItem
-                          key={opt.id}
-                          onSelect={() => onChange(filter.key, opt.id)}
-                        >
-                          {opt.name}
-                        </CommandItem>
-                      ))}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+            <div key={filter.key} className="mb-2">
+              <FilterPopover onChange={onChange} filter={filter} selected={selected} />
             </div>
           )
-        }*/}
+        }
 
         if (filter.type === "boolean") {
           return (
-            <div key={filter.key} className="flex items-center space-x-3">
+            <div key={filter.key} className="flex items-center space-x-3 mb-2 p-2 bg-white/70 rounded-lg shadow-sm">
               <Switch
                 id={filter.key}
-                className="cursor-pointer"
+                className="cursor-pointer focus:ring-2 focus:ring-blue-200"
                 checked={values[filter.key] || false}
                 onCheckedChange={(value) => onChange(filter.key, value)}
-
               />
-              <Label htmlFor={filter.key}>{filter.label}</Label>
+              <Label htmlFor={filter.key} className="text-blue-900 font-medium">{filter.label}</Label>
             </div>
           )
         }

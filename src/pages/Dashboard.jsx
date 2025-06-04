@@ -13,6 +13,8 @@ import axios from 'axios';
 import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 import VideoTrimmer from '../VideoTrimmer';
 import { inferDismissals } from '../utils/utils';
+import { useSelector, useDispatch } from 'react-redux';
+import { loadUser } from '../actions/userAction';
 
 const filters = [
   'Match', 'Player', 'Shot Type', 'Over', 'Ball', 'Batting Team', 'Bowler', 'Striker', 'Non-Striker',
@@ -21,6 +23,8 @@ const filters = [
 ];
 
 export default function Dashboard() {
+  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.user || {});
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilters, setSelectedFilters] = useState({ batsman: 'virat kohli' });
   const [filterValues, setFilterValues] = useState({ batsman: 'virat kohli' });
@@ -37,7 +41,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedQuality, setSelectedQuality] = useState('720p');
 
+  // Only show admin controls if user is logged in and user.role is 'admin'
+  const isAdmin = user && user.role === "admin";
+  console.log(user, 'user')
   useEffect(() => {
+    dispatch(loadUser());
     const fetchClips = async () => {
       try {
         setLoading(true);
@@ -59,7 +67,7 @@ export default function Dashboard() {
     };
 
     fetchClips();
-  }, []);
+  }, [dispatch]);
 
   const getClipWithDuration = (clip) => {
     return new Promise((resolve) => {
@@ -171,6 +179,9 @@ export default function Dashboard() {
       if (key === 'shotType') {
         return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
       }
+       if (key === 'ballType') {
+        return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
+      }
       return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
       //if((!duration)&&clip?.batsman) return true;
     });
@@ -180,29 +191,30 @@ export default function Dashboard() {
   //console.log(filteredClips, 'filteredClips');
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4 bg-gradient-to-br from-blue-50 to-white min-h-screen">
       {loading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
         </div>
       )}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">Cricket Clips Dashboard</h1>
+        <h1 className="text-3xl font-extrabold text-blue-900 drop-shadow-sm">Cricket Clips Dashboard</h1>
         <div className="flex items-center gap-2 w-full md:w-full">
           <Search className="text-muted-foreground" />
           <Input
             placeholder="Search clips or players..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-white/80 border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
           />
         </div>
       </div>
-      {/* 🆕 Video Quality Selector */}
-      <div className='flex justify-between'>
+      {/* Video Quality Selector */}
+      <div className='flex justify-between items-center'>
         <div className="flex items-center gap-4">
           <label className="text-sm font-medium text-gray-700">Video Quality:</label>
           <select
-            className="p-2 border border-gray-300 rounded"
+            className="p-2 border border-gray-300 rounded bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
             value={selectedQuality}
             onChange={(e) => setSelectedQuality(e.target.value)}
           >
@@ -211,7 +223,7 @@ export default function Dashboard() {
           </select>
         </div>
         <div className="flex flex-wrap gap-2 justify-end">
-          {!isSuperAdmin && (
+          {!isAdmin && (
             <div className="flex items-center justify-end gap-2">
               <Button
                 variant="outline"
@@ -222,6 +234,7 @@ export default function Dashboard() {
                     setSelectedClips(filteredClips.map((clip) => clip.clip)); // Select all visible
                   }
                 }}
+                className="border-blue-300 hover:bg-blue-50"
               >
                 {selectedClips.length === filteredClips.length ? 'Deselect All' : 'Select All'}
               </Button>
@@ -231,6 +244,7 @@ export default function Dashboard() {
             variant="secondary"
             disabled={selectedClips.length === 0}
             onClick={handleDownloadSelected}
+            className="bg-blue-100 text-blue-700 hover:bg-blue-200"
           >
             📥 Download Selected
           </Button>
@@ -238,17 +252,18 @@ export default function Dashboard() {
             variant="default"
             disabled={selectedClips.length === 0}
             onClick={handleMergeAndDownload}
+            className="bg-blue-500 text-white hover:bg-blue-600"
           >
             🎞️ Combine & Download
           </Button>
         </div>
       </div>
       <Filters values={filterValues} onChange={handleFilterChange} clips={clips} />
-      {isSuperAdmin && selectedClips.length > 0 && (
+      {isAdmin && selectedClips.length > 0 && (
         <div className="flex justify-end">
           <Button
             variant="destructive"
-            className="text-black border border-gray-200"
+            className="text-white bg-red-500 border border-red-300 hover:bg-red-600"
             onClick={deleteSelected}
           >
             Delete Selected ({selectedClips.length})
@@ -258,39 +273,38 @@ export default function Dashboard() {
       <p className="text-sm text-muted-foreground mb-2">
         {filteredClips.length} item{filteredClips.length !== 1 && "s"} selected
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-4">
         {filteredClips.map(clip => (
-          <Card key={clip._id} className="relative">
-            <video controls className="w-full rounded-t-xl">
+          <Card key={clip._id} className="relative shadow-lg hover:shadow-2xl transition-shadow bg-white/90 border-blue-100">
+            <video controls className="w-full rounded-t-xl aspect-video bg-black">
               <source src={`${URL}/mockvideos/${clip.clip}`} type="video/mp4" />
             </video>
-            <CardContent className='relative'>
-              <p className="font-semibold text-lg text-gray-800">{clip.batsman}</p>
+            <CardContent className='relative space-y-1 pt-2'>
+              <p className="font-semibold text-lg text-blue-900">{clip.batsman}</p>
               <p className="text-sm text-gray-600">vs {clip.bowler}</p>
               <p className="text-sm font-medium text-blue-600">{clip.event}</p>
               {/*<p className="font-semibold">{clip.duration}</p>*/}
-              {!isSuperAdmin && (
+              {!isAdmin && (
                 <Checkbox
                   checked={selectedClips.includes(clip.clip)}
                   onCheckedChange={() => toggleSelect(clip.clip)}
-                  className="absolute top-2 right-2 border border-red-500"
+                  className="absolute top-2 right-2 border border-blue-400 bg-white/80"
                 />
               )}
-              {isSuperAdmin && (
+              {isAdmin && (
                 <div className="flex gap-2 mt-2">
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="outline" size="sm">Edit</Button>
+                      <Button variant="outline" size="sm" className="border-blue-300">Edit</Button>
                     </DialogTrigger>
                     <DialogContent>
                       <EditClipForm clip={clip} onSave={handleEditSave} />
                     </DialogContent>
                   </Dialog>
-
                   <Button
                     variant="destructive"
                     size="sm"
-                    className='text-black border border-gray-200'
+                    className='text-white bg-red-500 border border-red-300 hover:bg-red-600'
                     onClick={() => handleDelete(clip)}
                   >
                     Delete
@@ -298,11 +312,11 @@ export default function Dashboard() {
                   <Button
                     variant="secondary"
                     size="sm"
+                    className="bg-blue-100 text-blue-700 hover:bg-blue-200"
                     onClick={() => setTrimmingClip(clip)}
                   >
                     ✂️ Trim
                   </Button>
-
                 </div>
               )}
             </CardContent>
@@ -316,7 +330,6 @@ export default function Dashboard() {
               <DialogTitle>Trim Clip</DialogTitle>
               <DialogDescription>Adjust the start and end time before trimming.</DialogDescription>
             </DialogHeader>
-
             <VideoTrimmer
               videoFileUrl={`${URL}/mockvideos/${trimmingClip.clip}`}
               onClose={() => setTrimmingClip(null)}

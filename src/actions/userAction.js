@@ -112,7 +112,8 @@ export const loadUser = () => async (dispatch) => {
   try {
     const servertoken = localStorage.getItem('token') && localStorage.getItem('token');
     dispatch({ type: LOAD_USER_REQUEST });
-    const { data } = await API.get('/auth/loaduser');
+    const { data } = await API.get(`${URL}/auth/loaduser`);
+    console.log(data,"user action")
     if (data.message) {
       dispatch({ type: LOAD_USER_SUCCESS, payload: data.message });
     }
