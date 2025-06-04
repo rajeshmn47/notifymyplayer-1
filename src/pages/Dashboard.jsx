@@ -207,24 +207,30 @@ export default function Dashboard() {
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
         </div>
       )}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-blue-900 drop-shadow-sm text-center w-full md:w-auto">Cricket Clips Dashboard</h1>
-        <div className="flex items-center gap-2 w-full md:w-full">
-          <Search className="text-muted-foreground" />
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-2 sm:px-4 rounded-xl bg-gradient-to-r from-blue-100/80 to-white/80 shadow-md border border-blue-100 mb-2">
+        <div className="flex flex-col items-center sm:items-start w-full sm:w-auto">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-blue-900 drop-shadow-sm text-center sm:text-left tracking-tight leading-tight mb-1">Cricket Clips Dashboard</h1>
+          <span className="text-xs sm:text-sm text-blue-700 font-medium tracking-wide opacity-80">AI-powered search &amp; video management</span>
+        </div>
+        <form className="flex items-center w-full sm:w-auto max-w-lg bg-white/90 rounded-lg shadow-sm border border-blue-200 px-2 py-1 focus-within:ring-2 focus-within:ring-blue-200 transition-all">
+          <Search className="text-blue-400 mr-2 w-5 h-5" />
           <Input
-            placeholder="Search clips or players..."
+            placeholder="Search clips, players, events..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-white/80 border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base"
+            className="flex-1 bg-transparent border-0 focus:ring-0 text-sm sm:text-base placeholder:text-blue-300"
+            aria-label="Search clips or players"
           />
-        </div>
+        </form>
       </div>
       {/* Video Quality Selector */}
-      <div className='flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0'>
-        <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
-          <label className="text-sm font-medium text-gray-700">Video Quality:</label>
+      <div
+        className="w-full max-w-xs sm:max-w-none flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-0"
+      >
+        <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 xs:gap-4 w-full sm:w-auto justify-between sm:justify-start">
+          <label className="text-xs sm:text-sm font-medium text-gray-700">Video Quality:</label>
           <select
-            className="p-2 border border-gray-300 rounded bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 text-sm"
+            className="p-2 border border-gray-300 rounded bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 text-xs sm:text-sm w-full xs:w-auto"
             value={selectedQuality}
             onChange={(e) => setSelectedQuality(e.target.value)}
           >
@@ -232,7 +238,7 @@ export default function Dashboard() {
             <option value="360p">Low (360p)</option>
           </select>
         </div>
-        <div className="flex flex-wrap gap-2 justify-end w-full sm:w-auto">
+        <div className="flex flex-col xs:flex-row flex-wrap gap-2 w-full sm:w-auto justify-end">
           {!isAdmin && (
             <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
               <Button
@@ -244,7 +250,7 @@ export default function Dashboard() {
                     setSelectedClips(filteredClips.map((clip) => clip.clip)); // Select all visible
                   }
                 }}
-                className="border-blue-300 hover:bg-blue-50 text-xs sm:text-base"
+                className="border-blue-300 hover:bg-blue-50 text-xs sm:text-base w-full xs:w-auto"
               >
                 {selectedClips.length === filteredClips.length ? 'Deselect All' : 'Select All'}
               </Button>
@@ -254,7 +260,7 @@ export default function Dashboard() {
             variant="secondary"
             disabled={selectedClips.length === 0}
             onClick={handleDownloadSelected}
-            className="bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs sm:text-base"
+            className="bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs sm:text-base w-full xs:w-auto"
           >
             📥 Download Selected
           </Button>
@@ -262,7 +268,7 @@ export default function Dashboard() {
             variant="default"
             disabled={selectedClips.length === 0}
             onClick={handleMergeAndDownload}
-            className="bg-blue-500 text-white hover:bg-blue-600 text-xs sm:text-base"
+            className="bg-blue-500 text-white hover:bg-blue-600 text-xs sm:text-base w-full xs:w-auto"
           >
             🎞️ Combine & Download
           </Button>
