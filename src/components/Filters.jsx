@@ -69,7 +69,8 @@ function Filters({ values, onChange, clips }) {
     { id: "reverse_hit", name: "Reverse Hit" },
     { id: "scoop", name: "Scoop" },
     { id: "ramp_shot", name: "Ramp Shot" },
-    { id: "uppercut", name: "Uppercut" }
+    { id: "uppercut", name: "Uppercut" },
+    { id: "inside_out", name: "Inside Out" }
   ]
 
   const ballTypes = [

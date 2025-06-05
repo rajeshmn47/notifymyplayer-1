@@ -237,23 +237,21 @@ export default function Dashboard() {
           </select>
         </div>
         <div className="flex flex-col xs:flex-row flex-wrap gap-2 flex-1 justify-end">
-          {!isAdmin && (
-            <div className="flex items-center justify-end gap-2 w-full">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (selectedClips.length === filteredClips.length) {
-                    setSelectedClips([]); // Deselect all
-                  } else {
-                    setSelectedClips(filteredClips.map((clip) => clip.clip)); // Select all visible
-                  }
-                }}
-                className="border-blue-300 hover:bg-blue-50 text-xs sm:text-base w-full xs:w-auto"
-              >
-                {selectedClips.length === filteredClips.length ? 'Deselect All' : 'Select All'}
-              </Button>
-            </div>
-          )}
+          <div className="flex items-center justify-end gap-2 w-full">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (selectedClips.length === filteredClips.length) {
+                  setSelectedClips([]); // Deselect all
+                } else {
+                  setSelectedClips(filteredClips.map((clip) => clip.clip)); // Select all visible
+                }
+              }}
+              className="border-blue-300 hover:bg-blue-50 text-xs sm:text-base w-full xs:w-auto"
+            >
+              {selectedClips.length === filteredClips.length ? 'Deselect All' : 'Select All'}
+            </Button>
+          </div>
           <Button
             variant="secondary"
             disabled={selectedClips.length === 0}
@@ -309,20 +307,18 @@ export default function Dashboard() {
         {paginatedClips.map(clip => (
           <Card key={clip._id} className="relative shadow-lg hover:shadow-2xl transition-shadow bg-white/90 border-blue-100">
             <video controls className="w-full rounded-t-xl aspect-video bg-black min-h-[180px] sm:min-h-[220px] md:min-h-[240px]">
-              <source src={`${URL}/mockvideos/${clip.clip}`} type="video/mp4" />
+              <source src={`http://localhost:9000/mockvideos/${clip.clip}`} type="video/mp4" />
             </video>
             <CardContent className='relative space-y-1 pt-2'>
               <p className="font-semibold text-base sm:text-lg text-blue-900">{clip.batsman}</p>
               <p className="text-xs sm:text-sm text-gray-600">vs {clip.bowler}</p>
               <p className="text-xs sm:text-sm font-medium text-blue-600">{clip.event}</p>
               {/*<p className="font-semibold">{clip.duration}</p>*/}
-              {!isAdmin && (
-                <Checkbox
-                  checked={selectedClips.includes(clip.clip)}
-                  onCheckedChange={() => toggleSelect(clip.clip)}
-                  className="absolute top-2 right-2 border border-blue-400 bg-white/80"
-                />
-              )}
+              <Checkbox
+                checked={selectedClips.includes(clip.clip)}
+                onCheckedChange={() => toggleSelect(clip.clip)}
+                className="absolute top-2 right-2 border border-blue-400 bg-white/80"
+              />
               {isAdmin && (
                 <div className="flex gap-2 mt-2">
                   <Dialog>
