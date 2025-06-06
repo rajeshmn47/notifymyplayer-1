@@ -60,13 +60,21 @@ export default function Dashboard() {
         if (value === '10+') return duration >= 10;
         return true;
       }
-      // Case-insensitive partial match
+      // Case-insensitive partial match for shotType and ballType
       if (key === 'shotType') {
         return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
       }
       if (key === 'ballType') {
         return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
       }
+      // Exact match for season and league
+      if (key === 'season') {
+        return String(clip.season).toLowerCase() === String(value).toLowerCase();
+      }
+      if (key === 'league') {
+        return String(clip.series).toLowerCase() === String(value).toLowerCase();
+      }
+      // Default: case-insensitive partial match
       return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
     });
   });
