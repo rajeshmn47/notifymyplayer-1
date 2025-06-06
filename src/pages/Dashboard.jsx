@@ -45,39 +45,44 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
 
-  const filteredClips = clips.filter((clip) => {
-    return Object.entries(filterValues).every(([key, value]) => {
-      if (!value) return true; // Skip empty filters
-      const clipValue = clip[key];
-      if (key === 'isWicket') return clip.event === 'WICKET';
-      if (key === 'isFour') return clip.event === 'FOUR';
-      if (key === 'isSix') return clip.event === 'SIX';
-      const duration = clip.duration;
-      if (key === 'durationRange') {
-        if (value === '0-2') return duration >= 0 && duration < 2;
-        if (value === '2-5') return duration >= 2 && duration < 5;
-        if (value === '5-10') return duration >= 5 && duration < 10;
-        if (value === '10+') return duration >= 10;
-        return true;
-      }
-      // Case-insensitive partial match for shotType and ballType
-      if (key === 'shotType') {
-        return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
-      }
-      if (key === 'ballType') {
-        return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
-      }
-      // Exact match for season and league
-      if (key === 'season') {
-        return String(clip.season).toLowerCase() === String(value).toLowerCase();
-      }
-      if (key === 'league') {
-        return String(clip.series).toLowerCase() === String(value).toLowerCase();
-      }
-      // Default: case-insensitive partial match
-      return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
+  const filteredClips = clips
+    .filter(clip => clip.season !== "2023") // Exclude season 2023
+    .filter((clip) => {
+      return Object.entries(filterValues).every(([key, value]) => {
+        if (!value) return true; // Skip empty filters
+        const clipValue = clip[key];
+        if (key === 'isWicket') return clip.event === 'WICKET';
+        if (key === 'isFour') return clip.event === 'FOUR';
+        if (key === 'isSix') return clip.event === 'SIX';
+        const duration = clip.duration;
+        if (key === 'durationRange') {
+          if (value === '0-2') return duration >= 0 && duration < 2;
+          if (value === '2-5') return duration >= 2 && duration < 5;
+          if (value === '5-10') return duration >= 5 && duration < 10;
+          if (value === '10+') return duration >= 10;
+          return true;
+        }
+        // Case-insensitive partial match for shotType and ballType
+        if (key === 'shotType') {
+          return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
+        }
+        if (key === 'ballType') {
+          return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
+        }
+         if (key === 'direction') {
+          return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
+        }
+        // Exact match for season and league
+        if (key === 'season') {
+          return String(clip.season).toLowerCase() === String(value).toLowerCase();
+        }
+        if (key === 'league') {
+          return String(clip.series).toLowerCase() === String(value).toLowerCase();
+        }
+        // Default: case-insensitive partial match
+        return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
+      });
     });
-  });
 
   // Calculate paginated clips
   const paginatedClips = filteredClips.slice(

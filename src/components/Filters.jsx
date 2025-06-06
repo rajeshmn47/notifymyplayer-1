@@ -60,7 +60,7 @@ function Filters({ values, onChange, clips }) {
     { id: "reverse_sweep", name: "Reverse Sweep" },
     { id: "paddle_sweep", name: "Paddle Sweep" },
     { id: "switch_hit", name: "Switch Hit" },
-    { id: "lofted_shot", name: "Lofted Shot" },
+    { id: "lofted", name: "Lofted" },
     { id: "helicopter_shot", name: "Helicopter Shot" },
     { id: "glance", name: "Glance" },
     { id: "flick", name: "Flick" },
@@ -109,6 +109,39 @@ function Filters({ values, onChange, clips }) {
     { id: "split_finger", name: "Split Finger" },
     { id: "slower_ball_bouncer", name: "Slower Ball Bouncer" },
     { id: "reverse_swing_yorker", name: "Reverse Swing Yorker" },
+    { id: "other", name: "Other" }
+  ];
+
+  const directionOptions = [
+    { id: "long_on", name: "Long On" },
+    { id: "long_off", name: "Long Off" },
+    { id: "mid_on", name: "Mid On" },
+    { id: "mid_off", name: "Mid Off" },
+    { id: "deep_mid_wicket", name: "Deep Mid Wicket" },
+    { id: "deep_cover", name: "Deep Cover" },
+    { id: "deep_square_leg", name: "Deep Square Leg" },
+    { id: "deep_fine_leg", name: "Deep Fine Leg" },
+    { id: "deep_point", name: "Deep Point" },
+    { id: "third_man", name: "Third Man" },
+    { id: "slip", name: "Slip" },
+    { id: "gully", name: "Gully" },
+    { id: "cover", name: "Cover" },
+    { id: "extra_cover", name: "Extra Cover" },
+    { id: "point", name: "Point" },
+    { id: "square_leg", name: "Square Leg" },
+    { id: "fine_leg", name: "Fine Leg" },
+    { id: "leg_gully", name: "Leg Gully" },
+    { id: "short_leg", name: "Short Leg" },
+    { id: "silly_point", name: "Silly Point" },
+    { id: "mid_wicket", name: "Mid Wicket" },
+    { id: "mid_off", name: "Mid Off" },
+    { id: "mid_on", name: "Mid On" },
+    { id: "backward_point", name: "Backward Point" },
+    { id: "backward_square_leg", name: "Backward Square Leg" },
+    { id: "leg_slip", name: "Leg Slip" },
+    { id: "short_third_man", name: "Short Third Man" },
+    { id: "silly_mid_off", name: "Silly Mid Off" },
+    { id: "silly_mid_on", name: "Silly Mid On" },
     { id: "other", name: "Other" }
   ];
 
@@ -165,6 +198,7 @@ function Filters({ values, onChange, clips }) {
       ],
     },
     { type: "select", label: "Ball Type", key: "ballType", options: ballTypes },
+    { type: "select", label: "Direction", key: "direction", options: directionOptions },
   ]
 
   // Define which filters are basic (show by default)
