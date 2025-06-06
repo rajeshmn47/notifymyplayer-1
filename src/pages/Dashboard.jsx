@@ -315,7 +315,7 @@ export default function Dashboard() {
         {paginatedClips.map(clip => (
           <Card key={clip._id} className="relative shadow-lg hover:shadow-2xl transition-shadow bg-white/90 border-blue-100">
             <video controls className="w-full rounded-t-xl aspect-video bg-black min-h-[180px] sm:min-h-[220px] md:min-h-[240px]">
-              <source src={`http://localhost:9000/mockvideos/${clip.clip}`} type="video/mp4" />
+              <source src={`${URL}/mockvideos/${clip.clip}`} type="video/mp4" />
             </video>
             <CardContent className='relative space-y-1 pt-2'>
               <p className="font-semibold text-base sm:text-lg text-blue-900">{clip.batsman}</p>
