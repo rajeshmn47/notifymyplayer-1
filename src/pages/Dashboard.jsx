@@ -15,6 +15,7 @@ import VideoTrimmer from '../VideoTrimmer';
 import { inferDismissals } from '../utils/utils';
 import { useSelector, useDispatch } from 'react-redux';
 import { loadUser } from '../actions/userAction';
+import cricketSynonyms from '../utils/cricket_synonyms.json';
 
 const filters = [
   'Match', 'Player', 'Shot Type', 'Over', 'Ball', 'Batting Team', 'Bowler', 'Striker', 'Non-Striker',
@@ -46,40 +47,52 @@ export default function Dashboard() {
   const [itemsPerPage, setItemsPerPage] = useState(12);
 
   const filteredClips = clips
-    .filter(clip => clip.season !== "2023") // Exclude season 2023
+    .filter(clip => clip.season !== "2023")
     .filter((clip) => {
       return Object.entries(filterValues).every(([key, value]) => {
-        if (!value) return true; // Skip empty filters
+        if (!value) return true;
         const clipValue = clip[key];
+
+        // Semantic matching for shotType, direction, ballType
+        if (["shotType", "direction", "ballType"].includes(key)) {
+          return (
+            matchesWithSynonyms(clip.commentary, value, key)
+          );
+        }
+
+        // Keeper Catch filter logic
+        if (key === 'isKeeperCatch') {
+          const commentary = clip.commentary?.toLowerCase() || "";
+          const keeperCatchSynonyms = cricketSynonyms.keeperCatch?.keeper_catch || [];
+          const catches = keeperCatchSynonyms.some(syn =>
+            clip.commentary?.toLowerCase().includes(syn.toLowerCase())
+          );
+          if (clip?.event?.toLowerCase() == "wicket") {
+            console.log(catches, clip?.commentary, 'catches');
+            return catches;
+          }
+          else {
+            return false;
+          }
+          //return true;
+        }
+
+        // Example for boolean filters (adjust as per your data)
         if (key === 'isWicket') return clip.event === 'WICKET';
         if (key === 'isFour') return clip.event === 'FOUR';
         if (key === 'isSix') return clip.event === 'SIX';
-        const duration = clip.duration;
+
+        // Example for duration range (adjust as per your data)
         if (key === 'durationRange') {
+          const duration = clip.duration;
           if (value === '0-2') return duration >= 0 && duration < 2;
           if (value === '2-5') return duration >= 2 && duration < 5;
           if (value === '5-10') return duration >= 5 && duration < 10;
           if (value === '10+') return duration >= 10;
           return true;
         }
-        // Case-insensitive partial match for shotType and ballType
-        if (key === 'shotType') {
-          return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
-        }
-        if (key === 'ballType') {
-          return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
-        }
-         if (key === 'direction') {
-          return clip?.commentary?.toLowerCase()?.includes(value.split('_').join(' ').toLowerCase());
-        }
-        // Exact match for season and league
-        if (key === 'season') {
-          return String(clip.season).toLowerCase() === String(value).toLowerCase();
-        }
-        if (key === 'league') {
-          return String(clip.series).toLowerCase() === String(value).toLowerCase();
-        }
-        // Default: case-insensitive partial match
+
+        // Default: string includes (case-insensitive)
         return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
       });
     });
@@ -427,4 +440,33 @@ function EditClipForm({ clip, onSave }) {
       <Button onClick={handleSave}>Save</Button>
     </div>
   )
+}
+
+const synonymMap = {
+  shotType: {
+    inside_out: ["inside out", "extra cover", "over covers", "inside out drive"],
+    uppercut: ["upper cut", "uppercut"],
+    scoop: ["scoop", "ramp shot", "paddle scoop"],
+    // ...add more shot synonyms
+  },
+  direction: {
+    fine_leg: ["fine leg", "short fine", "deep fine leg", "leg boundary"],
+    long_on: ["long on", "deep long on"],
+    long_off: ["long off", "deep long off"],
+    // ...add more direction synonyms
+  },
+  // Add for fielders if needed
+};
+
+function matchesWithSynonyms(clipValue, filterValue, key) {
+  if (!clipValue || !filterValue) return false;
+  const normalizedClip = String(clipValue).toLowerCase().replace(/[_\s]/g, "");
+  const normalizedFilter = String(filterValue).toLowerCase().replace(/[_\s]/g, "");
+  // Direct match
+  if (normalizedClip.includes(normalizedFilter)) return true;
+  // Synonym match
+  const synonyms = cricketSynonyms[key]?.[filterValue] || [];
+  return synonyms.some(syn =>
+    normalizedClip.includes(syn.replace(/[_\s]/g, ""))
+  );
 }

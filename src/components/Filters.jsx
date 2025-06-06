@@ -149,36 +149,40 @@ function Filters({ values, onChange, clips }) {
     { type: "searchable", label: "Batsman", key: "batsman", options: uniqueBatsmen },
     { type: "searchable", label: "Bowler", key: "bowler", options: uniqueBowler },
     { type: "searchable", label: "Team", key: "team", options: [{ id: "rcb", name: "RCB" }, { id: "csk", name: "CSK" }] },
-    { type: "select", label: "League", key: "league", options: [
-      { id: "ipl", name: "IPL" },
-      { id: "bbl", name: "BBL" },
-      { id: "psl", name: "PSL" },
-      { id: "cpl", name: "CPL" },
-      { id: "t20_blast", name: "T20 Blast" },
-      { id: "bpl", name: "BPL" },
-      { id: "lpl", name: "LPL" },
-      { id: "hundred", name: "The Hundred" },
-      { id: "other", name: "Other" }
-    ] },
+    {
+      type: "select", label: "League", key: "league", options: [
+        { id: "ipl", name: "IPL" },
+        { id: "bbl", name: "BBL" },
+        { id: "psl", name: "PSL" },
+        { id: "cpl", name: "CPL" },
+        { id: "t20_blast", name: "T20 Blast" },
+        { id: "bpl", name: "BPL" },
+        { id: "lpl", name: "LPL" },
+        { id: "hundred", name: "The Hundred" },
+        { id: "other", name: "Other" }
+      ]
+    },
     { type: "select", label: "Shot Type", key: "shotType", options: shotTypes },
     { type: "select", label: "Bowler Type", key: "bowlerType", options: [{ id: "pace", name: "Pace" }, { id: "spin", name: "Spin" }] },
     { type: "select", label: "Batting Hand", key: "battingHand", options: [{ id: "left", name: "Left" }, { id: "right", name: "Right" }] },
     { type: "select", label: "Bowling Hand", key: "bowlingHand", options: [{ id: "left", name: "Left" }, { id: "right", name: "Right" }] },
     { type: "select", label: "Match Format", key: "matchFormat", options: [{ id: "odi", name: "ODI" }, { id: "t20", name: "T20" }, { id: "test", name: "Test" }] },
     { type: "select", label: "Match Venue", key: "venue", options: [{ id: "wankhede", name: "Wankhede" }, { id: "chinnaswamy", name: "Chinnaswamy" }] },
-    { type: "select", label: "Season", key: "season", options: [
-      { id: "2024", name: "2024" },
-      { id: "2023", name: "2023" },
-      { id: "2022", name: "2022" },
-      { id: "2021", name: "2021" },
-      { id: "2020", name: "2020" },
-      { id: "2019", name: "2019" },
-      { id: "2018", name: "2018" },
-      { id: "2017", name: "2017" },
-      { id: "2016", name: "2016" },
-      { id: "2015", name: "2015" },
-      { id: "other", name: "Other" }
-    ] },
+    {
+      type: "select", label: "Season", key: "season", options: [
+        { id: "2024", name: "2024" },
+        { id: "2023", name: "2023" },
+        { id: "2022", name: "2022" },
+        { id: "2021", name: "2021" },
+        { id: "2020", name: "2020" },
+        { id: "2019", name: "2019" },
+        { id: "2018", name: "2018" },
+        { id: "2017", name: "2017" },
+        { id: "2016", name: "2016" },
+        { id: "2015", name: "2015" },
+        { id: "other", name: "Other" }
+      ]
+    },
     { type: "select", label: "Over Range", key: "overRange", options: [{ id: "1-6", name: "1-6" }, { id: "7-15", name: "7-15" }, { id: "16-20", name: "16-20" }] },
     { type: "boolean", label: "Is Boundary", key: "isBoundary" },
     { type: "boolean", label: "Is Six", key: "isSix" },
@@ -189,6 +193,9 @@ function Filters({ values, onChange, clips }) {
     { type: "boolean", label: "Is LBW", key: "isLBW" },
     { type: "boolean", label: "Is Clean Bowled", key: "isCleanBowled" },
     { type: "boolean", label: "Is Stumping", key: "isStumping" },
+    // ...existing code...
+    { type: "boolean", label: "Keeper Catch", key: "isKeeperCatch" },
+    // ...existing code...
     {
       type: "select", label: "Duration (sec)", key: "durationRange", options: [
         { id: "0-2", name: "0-2 sec" },
@@ -234,7 +241,7 @@ function Filters({ values, onChange, clips }) {
               <div key={filter.key} className="mb-2 w-full min-w-0">
                 <Label className="mb-1 block text-blue-900 font-semibold tracking-wide">{filter.label}</Label>
                 <Select
-                className="w-full"
+                  className="w-full"
                   value={values[filter.key] || ""}
                   onValueChange={(value) => onChange(filter.key, value === "clear" ? null : value)}
                 >
