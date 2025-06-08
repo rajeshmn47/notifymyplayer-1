@@ -47,7 +47,6 @@ export default function Dashboard() {
   const [itemsPerPage, setItemsPerPage] = useState(12);
 
   const filteredClips = clips
-    .filter(clip => clip.season !== "2023")
     .filter((clip) => {
       return Object.entries(filterValues).every(([key, value]) => {
         if (!value) return true;
