@@ -16,6 +16,7 @@ import { inferDismissals } from '../utils/utils';
 import { useSelector, useDispatch } from 'react-redux';
 import { loadUser } from '../actions/userAction';
 import cricketSynonyms from '../utils/cricket_synonyms.json';
+import exclusionMap from '../utils/exclusion_map.json';
 
 const filters = [
   'Match', 'Player', 'Shot Type', 'Over', 'Ball', 'Batting Team', 'Bowler', 'Striker', 'Non-Striker',
@@ -28,7 +29,7 @@ export default function Dashboard() {
   const { user } = useSelector(state => state.user || {});
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilters, setSelectedFilters] = useState({ batsman: 'virat kohli' });
-  const [filterValues, setFilterValues] = useState({ batsman: 'virat kohli' });
+  const [filterValues, setFilterValues] = useState({ batsman: 'virat kohli', season: '2022' });
   const [isSuperAdmin, setIsSuperAdmin] = useState(false); // Simulating super admin status
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedClip, setSelectedClip] = useState(null);
@@ -53,12 +54,22 @@ export default function Dashboard() {
         const clipValue = clip[key];
 
         // Semantic matching for shotType, direction, ballType
-        if (["shotType", "direction", "ballType"].includes(key)) {
+        if (["shotType", "direction", "ballType", "isCleanBowled"].includes(key)) {
+          if (key == "isCleanBowled") {
+            value = "bowled"
+          }
           return (
             matchesWithSynonyms(clip.commentary, value, key)
           );
         }
-
+        if (searchTerm) {
+          if (clip?.commentary?.includes(searchTerm)) {
+            return true;
+          }
+          else {
+            return false;
+          }
+        }
         // Keeper Catch filter logic
         if (key === 'isKeeperCatch') {
           const commentary = clip.commentary?.toLowerCase() || "";
@@ -73,13 +84,63 @@ export default function Dashboard() {
           else {
             return false;
           }
-          //return true;
         }
-
-        // Example for boolean filters (adjust as per your data)
+        if (key === 'caughtBy') {
+          console.log('caught by is selected')
+          let values = value?.split(" ")
+          if (clip?.commentary?.toLowerCase().includes(`caught by ${values[1]?.toLowerCase()}`) || clip?.commentary?.toLowerCase().includes(`caught by ${values[0]?.toLowerCase()}`)) {
+            if (clip?.batsman?.toLowerCase() == value?.toLowerCase()) {
+              return false;
+            }
+            if (clip?.bowler?.toLowerCase() == value?.toLowerCase()) {
+              return false;
+            }
+            else {
+              return true;
+            }
+          }
+          else {
+            return false;
+          }
+        }
         if (key === 'isWicket') return clip.event === 'WICKET';
-        if (key === 'isFour') return clip.event === 'FOUR';
+        if (key === 'isFour') return clip.event.includes('FOUR');
         if (key === 'isSix') return clip.event === 'SIX';
+        if (key === 'isLofted') {
+          // Only filter if isLofted is true
+          if (!value) return true;
+          const comm = clip.commentary?.toLowerCase() || "";
+          const shotType = clip.shotType?.toLowerCase() || "";
+          // Synonyms for lofted
+          const loftedSynonyms = cricketSynonyms.shotType?.lofted || [];
+          // Match in commentary or shotType
+          return (
+            loftedSynonyms.some(syn => comm.includes(syn) || shotType.includes(syn))
+          );
+        }
+        if (key === 'isGrounded') {
+          if (!value) return true;
+          const comm = clip.commentary?.toLowerCase() || "";
+          const shotType = clip.shotType?.toLowerCase() || "";
+          // Synonyms for grounded shots
+          const groundedSynonyms = [
+            "along the ground",
+            "kept it down",
+            "keeps it down",
+            "kept on the ground",
+            "along ground",
+            "grounded",
+            "kept low",
+            "keeps it low"
+          ];
+          // Should NOT match any lofted synonyms
+          const loftedSynonyms = cricketSynonyms.shotType?.lofted || [];
+          // Must match a grounded synonym and NOT a lofted synonym
+          return (
+            groundedSynonyms.some(syn => comm.includes(syn) || shotType.includes(syn)) ||
+            !loftedSynonyms.some(syn => comm.includes(syn) || shotType.includes(syn))
+          );
+        }
 
         // Example for duration range (adjust as per your data)
         if (key === 'durationRange') {
@@ -89,6 +150,50 @@ export default function Dashboard() {
           if (value === '5-10') return duration >= 5 && duration < 10;
           if (value === '10+') return duration >= 10;
           return true;
+        }
+
+        // Additional semantic matching for runOutBy
+        if (key === 'runOutBy') {
+          // Only filter if isRunout is also selected
+          if (!filterValues.isRunout) return true;
+          let values = value?.split(" ");
+          const runOutByValue = values[1]?.toLowerCase();
+          // Try to match in a dedicated runOutBy field if present
+          //if (clip.runOutBy && clip.runOutBy.toLowerCase().includes(runOutByValue)) return true;
+          // Fallback: try to match in commentary
+          if (clip.commentary?.toLowerCase().includes(`direct hit by ${runOutByValue}`)) return true;
+          if (clip.commentary?.toLowerCase().includes(`direct-hit from ${runOutByValue}`)) return true;
+          // Optionally, match just the name if commentary is inconsistent
+          //if (clip.commentary?.toLowerCase().includes(runOutByValue)) return true;
+          return false;
+        }
+        if (key === 'isDropped') {
+          return clip.event?.includes('DROPPED');
+        }
+        if (key === 'droppedBy') {
+          if (!filterValues.isDropped) return true;
+          let droppedByValue = value?.split(" ")?.[0]?.toLowerCase();
+          let droppedByValue2 = value?.split(" ")?.[1]?.toLowerCase();
+          let testValue = value?.split(" ")
+          console.log(testValue, testValue?.length, droppedByValue, droppedByValue2, 'testValue');
+          if (testValue?.length == 3) {
+            let values = value?.split(" ")
+            droppedByValue2 = [values[1], values[2]]?.join(" ")?.toLowerCase();
+          }
+          console.log(testValue, testValue?.length, droppedByValue, droppedByValue2, 'testValue');
+          // Try to match in a dedicated droppedBy field if present
+          //if (clip.droppedBy && clip.droppedBy.toLowerCase().includes(droppedByValue)) return true;
+          // Fallback: try to match in commentary
+          if (clip.batsman?.toLowerCase().includes(droppedByValue)) return false;
+          if (clip.batsman?.toLowerCase().includes(droppedByValue2)) return false;
+          if (clip.bowler?.toLowerCase().includes(droppedByValue)) return false;
+          //if (clip.commentary?.toLowerCase().includes(`${droppedByValue}`)) return true;
+          // Optionally, match just the name if commentary is inconsistent
+          if (clip.commentary?.toLowerCase().includes(droppedByValue)) return true;
+          if (clip.commentary?.toLowerCase().includes(droppedByValue2)) return true;
+          // Optionally, match just the name if commentary is inconsistent
+          //if (clip.commentary?.toLowerCase().includes(droppedByValue2)) return true;
+          return false;
         }
 
         // Default: string includes (case-insensitive)
@@ -331,6 +436,14 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pt-4">
         {paginatedClips.map(clip => (
           <Card key={clip._id} className="relative shadow-lg hover:shadow-2xl transition-shadow bg-white/90 border-blue-100">
+            <a
+              target='__blank'
+              href={`${URL}/mockvideos/${clip.clip}`}
+              className="underline text-blue-700 hover:text-blue-900 break-all"
+              style={{ wordBreak: 'break-all' }}
+            >
+              {`${URL}/mockvideos/${clip.clip}`}
+            </a>
             <video controls className="w-full rounded-t-xl aspect-video bg-black min-h-[180px] sm:min-h-[220px] md:min-h-[240px]">
               <source src={`${URL}/mockvideos/${clip.clip}`} type="video/mp4" />
             </video>
@@ -338,6 +451,7 @@ export default function Dashboard() {
               <p className="font-semibold text-base sm:text-lg text-blue-900">{clip.batsman}</p>
               <p className="text-xs sm:text-sm text-gray-600">vs {clip.bowler}</p>
               <p className="text-xs sm:text-sm font-medium text-blue-600">{clip.event}</p>
+              <p className="text-xs sm:text-sm text-gray-500">{clip?.commentary}</p>
               {/*<p className="font-semibold">{clip.duration}</p>*/}
               <Checkbox
                 checked={selectedClips.includes(clip.clip)}
@@ -441,31 +555,36 @@ function EditClipForm({ clip, onSave }) {
   )
 }
 
-const synonymMap = {
-  shotType: {
-    inside_out: ["inside out", "extra cover", "over covers", "inside out drive"],
-    uppercut: ["upper cut", "uppercut"],
-    scoop: ["scoop", "ramp shot", "paddle scoop"],
-    // ...add more shot synonyms
-  },
-  direction: {
-    fine_leg: ["fine leg", "short fine", "deep fine leg", "leg boundary"],
-    long_on: ["long on", "deep long on"],
-    long_off: ["long off", "deep long off"],
-    // ...add more direction synonyms
-  },
-  // Add for fielders if needed
-};
-
 function matchesWithSynonyms(clipValue, filterValue, key) {
   if (!clipValue || !filterValue) return false;
-  const normalizedClip = String(clipValue).toLowerCase().replace(/[_\s]/g, "");
-  const normalizedFilter = String(filterValue).toLowerCase().replace(/[_\s]/g, "");
-  // Direct match
-  if (normalizedClip.includes(normalizedFilter)) return true;
-  // Synonym match
+  const normalizedClip = String(clipValue).toLowerCase();
+  const normalizedFilter = String(filterValue).toLowerCase();
+
+  // Exclusion logic for specific keys/values
+
+  // Exclude if any exclusion phrase is present
+  if (exclusionMap[key] && exclusionMap[key][filterValue]) {
+    const exclusions = exclusionMap[key][filterValue];
+    for (const phrase of exclusions) {
+      if (normalizedClip.includes(phrase?.toLowerCase())) return false;
+    }
+  }
+
+  // Whole word/phrase match
+  const wordRegex = new RegExp(`\\b${normalizedFilter}\\b`, 'i');
+  if (wordRegex.test(normalizedClip)) return true;
+
+  // Synonym match (whole word/phrase)
   const synonyms = cricketSynonyms[key]?.[filterValue] || [];
-  return synonyms.some(syn =>
-    normalizedClip.includes(syn.replace(/[_\s]/g, ""))
-  );
+  return synonyms.some(syn => {
+    // Exclude if synonym is part of an exclusion phrase
+    if (exclusionMap[key] && exclusionMap[key][filterValue]) {
+      const exclusions = exclusionMap[key][filterValue];
+      for (const phrase of exclusions) {
+        if (normalizedClip.includes(phrase)) return false;
+      }
+    }
+    const synRegex = new RegExp(`\\b${syn.toLowerCase()}\\b`, 'i');
+    return synRegex.test(normalizedClip);
+  });
 }

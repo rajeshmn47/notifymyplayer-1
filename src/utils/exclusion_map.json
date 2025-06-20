@@ -1,0 +1,34 @@
+{
+  "direction": {
+    "point": [
+      "point of impact",
+      "bowled at around this point"
+    ],
+    "cover": [
+      "cover point"
+    ],
+    "mid_off": [
+      "back over the bowler's head"
+    ],
+    "long_on": [
+      "No chance for long-on"
+    ],
+    "mid_wicket": [
+    ],
+    "square_leg": [
+    ],
+    "fine_leg": [
+      "deep fine leg"
+    ],
+    "slip": [
+      "slips through",
+      "slip through"
+    ]
+  },
+  "ballType": {
+    "good_length": [
+      "short of a good length",
+      "shorter than good length"
+    ]
+  }
+}

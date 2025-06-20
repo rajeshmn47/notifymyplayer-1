@@ -46,6 +46,16 @@ function Filters({ values, onChange, clips }) {
     name,
   }));
 
+  let alluniqueplayers = uniqueBatsmen?.concat(uniqueBowler)
+
+  // Extract unique fielders for the "Caught By" filter
+  const uniqueFielders = Array.from(
+    new Set(alluniqueplayers)
+  ).map((name) => ({
+    id: name?.name?.toLowerCase(),
+    name: name?.name,
+  }));
+
   const shotTypes = [
     { id: "cover_drive", name: "Cover Drive" },
     { id: "straight_drive", name: "Straight Drive" },
@@ -115,6 +125,7 @@ function Filters({ values, onChange, clips }) {
   const directionOptions = [
     { id: "long_on", name: "Long On" },
     { id: "long_off", name: "Long Off" },
+    { id: "straight", name: "Straight" },
     { id: "mid_on", name: "Mid On" },
     { id: "mid_off", name: "Mid Off" },
     { id: "deep_mid_wicket", name: "Deep Mid Wicket" },
@@ -193,9 +204,9 @@ function Filters({ values, onChange, clips }) {
     { type: "boolean", label: "Is LBW", key: "isLBW" },
     { type: "boolean", label: "Is Clean Bowled", key: "isCleanBowled" },
     { type: "boolean", label: "Is Stumping", key: "isStumping" },
-    // ...existing code...
     { type: "boolean", label: "Keeper Catch", key: "isKeeperCatch" },
-    // ...existing code...
+    { type: "boolean", label: "Lofted", key: "isLofted" }, // <-- Add this line
+    { type: "boolean", label: "Along the Ground", key: "isGrounded" },
     {
       type: "select", label: "Duration (sec)", key: "durationRange", options: [
         { id: "0-2", name: "0-2 sec" },
@@ -206,6 +217,10 @@ function Filters({ values, onChange, clips }) {
     },
     { type: "select", label: "Ball Type", key: "ballType", options: ballTypes },
     { type: "select", label: "Direction", key: "direction", options: directionOptions },
+    { type: "searchable", label: "Caught By", key: "caughtBy", options: uniqueFielders },
+    { type: "searchable", label: "Run Out By", key: "runOutBy", options: uniqueFielders },
+    { type: "boolean", label: "Is Dropped", key: "isDropped" },
+    { type: "searchable", label: "Dropped By", key: "droppedBy", options: uniqueFielders },
   ]
 
   // Define which filters are basic (show by default)
@@ -217,75 +232,149 @@ function Filters({ values, onChange, clips }) {
   ];
 
   // Filter config for current mode
-  const visibleFilters = filterMode === "basic"
-    ? filterConfig.filter(f => basicFilterKeys.includes(f.key))
-    : filterConfig;
+  const visibleFilters = filterConfig.filter(f =>
+    basicFilterKeys.includes(f.key) ||
+    (f.key === "caughtBy" && (values.isCatch === true || values.isWicket === true)) ||
+    (f.key === "runOutBy" && values.isRunout === true) ||
+    (f.key === "droppedBy" && values.isDropped === true) ||
+    (!basicFilterKeys.includes(f.key) &&
+      f.key !== "caughtBy" &&
+      f.key !== "runOutBy" &&
+      f.key !== "droppedBy" &&
+      filterMode === "advanced")
+  );
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-blue-900 font-bold text-lg">Filters</span>
-        <Button
-          variant="outline"
-          size="sm"
-          className="ml-2"
-          onClick={() => setFilterMode(filterMode === "basic" ? "advanced" : "basic")}
-        >
-          {filterMode === "basic" ? "Show Advanced Filters" : "Show Fewer Filters"}
-        </Button>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-cols-fr gap-4 p-4 bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-md">
-        {visibleFilters.map((filter) => {
-          if (filter.type === "select") {
-            return (
-              <div key={filter.key} className="mb-2 w-full min-w-0">
-                <Label className="mb-1 block text-blue-900 font-semibold tracking-wide">{filter.label}</Label>
-                <Select
-                  className="w-full"
-                  value={values[filter.key] || ""}
-                  onValueChange={(value) => onChange(filter.key, value === "clear" ? null : value)}
-                >
-                  <SelectTrigger className="w-full min-w-0 rounded-lg border-blue-200 bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 shadow-sm">
-                    <SelectValue placeholder={`Select ${filter.label}`} className="cursor-pointer text-gray-700" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-lg bg-white shadow-lg">
-                    <SelectItem value="clear" className="text-gray-400 italic">Select Option</SelectItem>
-                    {filter.options.map((opt) => (
-                      <SelectItem key={opt.id} value={opt.id} className="hover:bg-blue-50 focus:bg-blue-100">
-                        {opt.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )
-          }
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-blue-900 font-bold text-lg">Filters</span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-2"
+            onClick={() => setFilterMode(filterMode === "basic" ? "advanced" : "basic")}
+          >
+            {filterMode === "basic" ? "Show Advanced Filters" : "Show Fewer Filters"}
+          </Button>
+        </div>
+        <div className="bg-gradient-to-br from-blue-50 to-white shadow-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-cols-fr gap-4 p-4  rounded-xl">
+            {/* Grouped: Is Catch + Caught By */}
 
-          if (filter.type === "searchable") {
-            const selected = filter.options.find(o => o.id === values[filter.key])
-            return (
-              <div key={filter.key} className="mb-2 w-full min-w-0">
-                <FilterPopover onChange={onChange} filter={filter} selected={selected} />
-              </div>
-            )
-          }
 
-          if (filter.type === "boolean") {
-            return (
-              <div key={filter.key} className="flex items-center space-x-3 mb-2 p-2 bg-white/70 rounded-lg shadow-sm w-full min-w-0">
-                <Switch
-                  id={filter.key}
-                  className="cursor-pointer focus:ring-2 focus:ring-blue-200"
-                  checked={values[filter.key] || false}
-                  onCheckedChange={(value) => onChange(filter.key, value)}
-                />
-                <Label htmlFor={filter.key} className="text-blue-900 font-medium">{filter.label}</Label>
-              </div>
-            )
-          }
+            {/* Render the rest of your filters as before, skipping the above keys */}
+            {visibleFilters.filter(f =>
+              !["caughtBy", "runOutBy", "droppedBy", "isCatch", "isRunout", "isDropped"].includes(f.key)
+            ).map((filter) => {
+              if (filter.type === "select") {
+                return (
+                  <div key={filter.key} className="mb-2 w-full min-w-0">
+                    <Label className="mb-1 block text-blue-900 font-semibold tracking-wide">{filter.label}</Label>
+                    <Select
+                      className="w-full"
+                      value={values[filter.key] || ""}
+                      onValueChange={(value) => onChange(filter.key, value === "clear" ? null : value)}
+                    >
+                      <SelectTrigger className="w-full min-w-0 rounded-lg border-blue-200 bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 shadow-sm">
+                        <SelectValue placeholder={`Select ${filter.label}`} className="cursor-pointer text-gray-700" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-lg bg-white shadow-lg">
+                        <SelectItem value="clear" className="text-gray-400 italic">Select Option</SelectItem>
+                        {filter.options.map((opt) => (
+                          <SelectItem key={opt.id} value={opt.id} className="hover:bg-blue-50 focus:bg-blue-100">
+                            {opt.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )
+              }
 
-          return null
-        })}
+              if (filter.type === "searchable") {
+                const selected = filter.options.find(o => o.id === values[filter.key])
+                return (
+                  <div key={filter.key} className="mb-2 w-full min-w-0">
+                    <FilterPopover onChange={onChange} filter={filter} selected={selected} />
+                  </div>
+                )
+              }
+
+              if (filter.type === "boolean") {
+                return (
+                  <div key={filter.key} className="flex items-center space-x-3 mb-2 p-2 bg-white/70 rounded-lg shadow-sm w-full min-w-0">
+                    <Switch
+                      id={filter.key}
+                      className="cursor-pointer focus:ring-2 focus:ring-blue-200"
+                      checked={values[filter.key] || false}
+                      onCheckedChange={(value) => onChange(filter.key, value)}
+                    />
+                    <Label htmlFor={filter.key} className="text-blue-900 font-medium">{filter.label}</Label>
+                  </div>
+                )
+              }
+
+              return null
+            })}
+          </div>
+          {filterMode == "advanced" &&
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-cols-fr gap-4 p-4 rounded-xl shadow-md">
+              {/* Grouped: Is Catch + Caught By */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center space-x-3 mb-2 p-2 bg-white/70 rounded-lg shadow-sm w-full min-w-0">
+                  <Switch
+                    id="isCatch"
+                    className="cursor-pointer focus:ring-2 focus:ring-blue-200"
+                    checked={values.isCatch || false}
+                    onCheckedChange={(value) => onChange("isCatch", value)}
+                  />
+                  <Label htmlFor="isCatch" className="text-blue-900 font-medium">Is Catch</Label>
+                </div>
+                {(values.isCatch === true || values.isWicket === true) && (
+                  <div className="mb-2 w-full min-w-0">
+                    <FilterPopover onChange={onChange} filter={filterConfig.find(f => f.key === "caughtBy")} selected={filterConfig.find(f => f.key === "caughtBy").options.find(o => o.id === values.caughtBy)} />
+                  </div>
+                )}
+              </div>
+
+              {/* Grouped: Is Runout + Run Out By */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center space-x-3 mb-2 p-2 bg-white/70 rounded-lg shadow-sm w-full min-w-0">
+                  <Switch
+                    id="isRunout"
+                    className="cursor-pointer focus:ring-2 focus:ring-blue-200"
+                    checked={values.isRunout || false}
+                    onCheckedChange={(value) => onChange("isRunout", value)}
+                  />
+                  <Label htmlFor="isRunout" className="text-blue-900 font-medium">Is Runout</Label>
+                </div>
+                {values.isRunout === true && (
+                  <div className="mb-2 w-full min-w-0">
+                    <FilterPopover onChange={onChange} filter={filterConfig.find(f => f.key === "runOutBy")} selected={filterConfig.find(f => f.key === "runOutBy").options.find(o => o.id === values.runOutBy)} />
+                  </div>
+                )}
+              </div>
+
+              {/* Grouped: Is Dropped + Dropped By */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center space-x-3 mb-2 p-2 bg-white/70 rounded-lg shadow-sm w-full min-w-0">
+                  <Switch
+                    id="isDropped"
+                    className="cursor-pointer focus:ring-2 focus:ring-blue-200"
+                    checked={values.isDropped || false}
+                    onCheckedChange={(value) => onChange("isDropped", value)}
+                  />
+                  <Label htmlFor="isDropped" className="text-blue-900 font-medium">Is Dropped</Label>
+                </div>
+                {values.isDropped === true && (
+                  <div className="mb-2 w-full min-w-0">
+                    <FilterPopover onChange={onChange} filter={filterConfig.find(f => f.key === "droppedBy")} selected={filterConfig.find(f => f.key === "droppedBy").options.find(o => o.id === values.droppedBy)} />
+                  </div>
+                )}
+              </div>
+            </div>}
+        </div>
       </div>
     </div>
   )
