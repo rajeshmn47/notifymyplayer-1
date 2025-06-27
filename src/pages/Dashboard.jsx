@@ -8,7 +8,7 @@ import { Filter, Search } from 'lucide-react';
 import Filters from '../components/Filters';
 import { Switch } from '../components/ui/switch';
 import { API } from '../actions/userAction';
-import { HTTPS_URL, URL } from '../constants/userConstants';
+import { HTTPS_URL, NEW_URL, URL } from '../constants/userConstants';
 import axios from 'axios';
 import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 import VideoTrimmer from '../VideoTrimmer';
