@@ -22,13 +22,26 @@
     ],
     "slip": [
       "slips through",
-      "slip through"
+      "slip through",
+      "slip further",
+      "slip further down",
+      "slip out of his",
+      "slip away",
+      "after a slip",
+      "slip under",
+      "slips in the",
+      "let it slip",
+      "slip deeper"
     ]
   },
   "ballType": {
     "good_length": [
       "short of a good length",
       "shorter than good length"
+    ],
+    "yorker":[
+      "full toss",
+      "full-toss"
     ]
   }
 }

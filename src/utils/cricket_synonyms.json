@@ -188,8 +188,7 @@
       "slip",
       "first slip",
       "second slip",
-      "third slip",
-      "slips through"
+      "third slip"
     ],
     "gully": [
       "gully",
@@ -209,11 +208,9 @@
     ],
     "square_leg": [
       "square leg",
-      "backward square leg"
-    ],
-    "fine_leg": [
-      "fine leg",
-      "short fine leg"
+      "backward square leg",
+      "deep square",
+      "backward square"
     ],
     "leg_gully": [
       "leg gully"
@@ -272,11 +269,12 @@
       "block hole",
       "toe crusher",
       "in the blockhole",
-      "full and straight"
+      "very full"
     ],
     "full_toss": [
       "full toss",
-      "full toss ball"
+      "full toss ball",
+      "full-toss"
     ],
     "good_length": [
       "good length",
@@ -474,6 +472,36 @@
       "bowled out by him",
       "bowled out by the bowler",
       "bowled out by the bowler's delivery"
+    ]
+  },
+  "connection":{
+    "inside_edge": [
+      "inside edge",
+      "inside-edge"
+    ],
+    "outside_edge": [
+      "outside edge",
+      "outside-edge"
+    ],
+    "thick_edge": [
+      "thick edge",
+      "thick-edge"
+    ],
+    "thin_edge": [
+      "thin edge",
+      "thin-edge"
+    ],
+    "thick_inside_edge": [
+      "thick inside edge",
+      "thick inside-edge"
+    ],
+    "top_edge": [
+      "top edge",
+      "top-edge"
+    ],
+    "bottom_edge": [
+      "bottom edge",
+      "bottom-edge" 
     ]
   }
 }

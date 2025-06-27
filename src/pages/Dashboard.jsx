@@ -28,8 +28,8 @@ export default function Dashboard() {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.user || {});
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState({ batsman: 'virat kohli' });
-  const [filterValues, setFilterValues] = useState({ batsman: 'virat kohli', season: '2022' });
+  const [selectedFilters, setSelectedFilters] = useState();
+  const [filterValues, setFilterValues] = useState({});
   const [isSuperAdmin, setIsSuperAdmin] = useState(false); // Simulating super admin status
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedClip, setSelectedClip] = useState(null);
@@ -54,7 +54,7 @@ export default function Dashboard() {
         const clipValue = clip[key];
 
         // Semantic matching for shotType, direction, ballType
-        if (["shotType", "direction", "ballType", "isCleanBowled"].includes(key)) {
+        if (["shotType", "direction", "ballType", "isCleanBowled","connection"].includes(key)) {
           if (key == "isCleanBowled") {
             value = "bowled"
           }
@@ -95,6 +95,19 @@ export default function Dashboard() {
             if (clip?.bowler?.toLowerCase() == value?.toLowerCase()) {
               return false;
             }
+            const fieldersNamedSame = fiel.filter(player =>
+              player.toLowerCase().includes(values[0]?.toLowerCase()) || player.toLowerCase().includes(values[1]?.toLowerCase())
+            );
+            let droppedByValue = value?.split(" ")?.[0]?.toLowerCase();
+            let droppedByValue2 = value?.split(" ")?.[1]?.toLowerCase();
+            console.log(values, values?.length, droppedByValue, droppedByValue2, 'testValue');
+            if (values?.length == 3) {
+              let values = value?.split(" ")
+              droppedByValue2 = [values[1], values[2]]?.join(" ")?.toLowerCase();
+              if (clip?.commentary?.toLowerCase().includes(`caught by ${droppedByValue2.toLowerCase()}`)) {
+                return true;
+              }
+            }
             else {
               return true;
             }
@@ -103,9 +116,9 @@ export default function Dashboard() {
             return false;
           }
         }
-        if (key === 'isWicket') return clip.event === 'WICKET';
-        if (key === 'isFour') return clip.event.includes('FOUR');
-        if (key === 'isSix') return clip.event === 'SIX';
+        if (key === 'isWicket') return clip.event?.includes('WICKET');
+        if (key === 'isFour') return clip.event?.includes('FOUR');
+        if (key === 'isSix') return clip.event?.includes('SIX');
         if (key === 'isLofted') {
           // Only filter if isLofted is true
           if (!value) return true;
@@ -157,12 +170,26 @@ export default function Dashboard() {
           // Only filter if isRunout is also selected
           if (!filterValues.isRunout) return true;
           let values = value?.split(" ");
+          let droppedByValue = value?.split(" ")?.[0]?.toLowerCase();
+          let droppedByValue2 = value?.split(" ")?.[1]?.toLowerCase();
+          console.log(values, values?.length, droppedByValue, droppedByValue2, 'testValue');
+          if (values?.length == 3) {
+            let values = value?.split(" ")
+            droppedByValue2 = [values[1], values[2]]?.join(" ")?.toLowerCase();
+          }
           const runOutByValue = values[1]?.toLowerCase();
           // Try to match in a dedicated runOutBy field if present
           //if (clip.runOutBy && clip.runOutBy.toLowerCase().includes(runOutByValue)) return true;
           // Fallback: try to match in commentary
+          if (clip?.batsman?.toLowerCase().includes(runOutByValue)) {
+            return false;
+          }
+          if (clip?.bowler?.toLowerCase().includes(runOutByValue)) {
+            return false;
+          }
           if (clip.commentary?.toLowerCase().includes(`direct hit by ${runOutByValue}`)) return true;
           if (clip.commentary?.toLowerCase().includes(`direct-hit from ${runOutByValue}`)) return true;
+          if (clip.commentary?.toLowerCase().includes(`${runOutByValue}`)) return true;
           // Optionally, match just the name if commentary is inconsistent
           //if (clip.commentary?.toLowerCase().includes(runOutByValue)) return true;
           return false;
@@ -195,6 +222,9 @@ export default function Dashboard() {
           //if (clip.commentary?.toLowerCase().includes(droppedByValue2)) return true;
           return false;
         }
+        if (key == "connection") {
+          //if (clip.commentary?.toLowerCase().includes(value)) return true;
+        }
 
         // Default: string includes (case-insensitive)
         return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
@@ -209,7 +239,7 @@ export default function Dashboard() {
   const totalPages = Math.ceil(filteredClips.length / itemsPerPage);
 
   // Only show admin controls if user is logged in and user.role is 'admin'
-  const isAdmin = user && user.role === "admin";
+  const isAdmin = user && user.role === "user";
   console.log(user, 'user')
   useEffect(() => {
     dispatch(loadUser());
@@ -436,16 +466,16 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pt-4">
         {paginatedClips.map(clip => (
           <Card key={clip._id} className="relative shadow-lg hover:shadow-2xl transition-shadow bg-white/90 border-blue-100">
-            <a
+            {/*<a
               target='__blank'
               href={`${URL}/mockvideos/${clip.clip}`}
               className="underline text-blue-700 hover:text-blue-900 break-all"
               style={{ wordBreak: 'break-all' }}
             >
               {`${URL}/mockvideos/${clip.clip}`}
-            </a>
+            </a>*/}
             <video controls className="w-full rounded-t-xl aspect-video bg-black min-h-[180px] sm:min-h-[220px] md:min-h-[240px]">
-              <source src={`${URL}/mockvideos/${clip.clip}`} type="video/mp4" />
+              <source src={`${NEW_URL}/mockvideos/${clip.clip}`} type="video/mp4" />
             </video>
             <CardContent className='relative space-y-1 pt-2'>
               <p className="font-semibold text-base sm:text-lg text-blue-900">{clip.batsman}</p>

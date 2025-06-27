@@ -153,8 +153,67 @@ function Filters({ values, onChange, clips }) {
     { id: "short_third_man", name: "Short Third Man" },
     { id: "silly_mid_off", name: "Silly Mid Off" },
     { id: "silly_mid_on", name: "Silly Mid On" },
+    { id: "half_tracker", name: "Half Tracker" },
     { id: "other", name: "Other" }
   ];
+
+  const connectionOptions = [
+    { id: "middle", name: "Middled" },
+    { id: "well_timed", name: "Well Timed" },
+    { id: "perfect_timing", name: "Timed to Perfection" },
+    { id: "top_edge", name: "Top Edge" },
+    { id: "bottom_edge", name: "Bottom Edge" },
+    { id: "outside_edge", name: "Outside Edge" },
+    { id: "inside_edge", name: "Inside Edge" },
+    { id: "thick_edge", name: "Thick Edge" },
+    { id: "thin_edge", name: "Thin Edge" },
+    { id: "toe_end", name: "Toe End" },
+    { id: "splice", name: "Off the Splice" },
+    { id: "miscue", name: "Miscued" },
+    { id: "early", name: "Early Shot" },
+    { id: "late", name: "Late Shot" },
+    { id: "air_shot", name: "No Contact (Air Shot)" },
+    { id: "beaten", name: "Beaten" },
+    { id: "nick", name: "Nick" },
+    { id: "edge_to_keeper", name: "Edge to Keeper" },
+    { id: "edge_to_slip", name: "Edge to Slip" },
+    { id: "skied", name: "Skied" },
+    { id: "mistimed", name: "Mistimed" },
+    { id: "sweet_spot", name: "Sweet Spot" },
+    { id: "defensive_block", name: "Defensive Block" },
+    { id: "no_connection", name: "No Connection" },
+    { id: "other", name: "Other" }
+  ];
+
+  const connectionGroups = {
+    "Clean Contact": [
+      { id: "well_timed", name: "Well Timed" },
+      { id: "middle", name: "Middle" },
+      { id: "perfect_timing", name: "Perfect Timing" },
+      { id: "sweet_spot", name: "Sweet Spot" }
+    ],
+    "Mistimed": [
+      { id: "miscue", name: "Miscue" },
+      { id: "mistimed", name: "Mistimed" },
+      { id: "toe_end", name: "Toe End" },
+      { id: "splice", name: "Splice" }
+    ],
+    "Edges": [
+      { id: "top_edge", name: "Top Edge" },
+      { id: "bottom_edge", name: "Bottom Edge" },
+      { id: "inside_edge", name: "Inside Edge" },
+      { id: "outside_edge", name: "Outside Edge" },
+      { id: "nick", name: "Nick" }
+    ],
+    "No Contact": [
+      { id: "air_shot", name: "Air Shot" },
+      { id: "beaten", name: "Beaten" }
+    ],
+    "Other": [
+      { id: "defensive_block", name: "Defensive Block" },
+      { id: "other", name: "Other" }
+    ]
+  };
 
   const filterConfig = [
     { type: "searchable", label: "Batsman", key: "batsman", options: uniqueBatsmen },
@@ -195,6 +254,12 @@ function Filters({ values, onChange, clips }) {
       ]
     },
     { type: "select", label: "Over Range", key: "overRange", options: [{ id: "1-6", name: "1-6" }, { id: "7-15", name: "7-15" }, { id: "16-20", name: "16-20" }] },
+    {
+      key: "connection",
+      label: "Connection Type",
+      type: "select",
+      groups: connectionGroups,
+    },
     { type: "boolean", label: "Is Boundary", key: "isBoundary" },
     { type: "boolean", label: "Is Six", key: "isSix" },
     { type: "boolean", label: "Is Four", key: "isFour" },
@@ -268,8 +333,37 @@ function Filters({ values, onChange, clips }) {
               !["caughtBy", "runOutBy", "droppedBy", "isCatch", "isRunout", "isDropped"].includes(f.key)
             ).map((filter) => {
               if (filter.type === "select") {
-                return (
-                  <div key={filter.key} className="mb-2 w-full min-w-0">
+                return filter.groups
+                  ?
+                  <div key={filter?.key} className="mb-4 w-full">
+                    <Label className="mb-1 block text-blue-900 font-semibold tracking-wide">
+                      {filter.label}
+                    </Label>
+                    <Select
+                      value={values[filter.key] || ""}
+                      onValueChange={(value) => onChange(filter.key, value === "clear" ? null : value)}
+                    >
+                      <SelectTrigger className="w-full rounded-lg border-blue-200 bg-white/80 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 shadow-sm">
+                        <SelectValue placeholder={`Select ${filter.label}`} className="cursor-pointer text-gray-700" />
+                      </SelectTrigger>
+
+                      <SelectContent className="rounded-lg bg-white shadow-lg max-h-60 overflow-y-auto">
+                        <SelectItem value="clear" className="text-gray-400 italic">Select Option</SelectItem>
+
+                        {Object.entries(connectionGroups).map(([groupName, items]) => (
+                          <div key={groupName}>
+                            <div className="px-3 py-1 text-xs font-medium text-gray-500">{groupName}</div>
+                            {items.map((opt) => (
+                              <SelectItem key={opt.id} value={opt.id} className="hover:bg-blue-50 focus:bg-blue-100">
+                                {opt.name}
+                              </SelectItem>
+                            ))}
+                          </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  : <div key={filter.key} className="mb-2 w-full min-w-0">
                     <Label className="mb-1 block text-blue-900 font-semibold tracking-wide">{filter.label}</Label>
                     <Select
                       className="w-full"
@@ -289,7 +383,6 @@ function Filters({ values, onChange, clips }) {
                       </SelectContent>
                     </Select>
                   </div>
-                )
               }
 
               if (filter.type === "searchable") {
