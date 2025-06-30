@@ -225,6 +225,7 @@ function Filters({ values, onChange, clips }) {
         { id: "bbl", name: "BBL" },
         { id: "psl", name: "PSL" },
         { id: "cpl", name: "CPL" },
+        { id: "mlc", name: "MLC" },
         { id: "t20_blast", name: "T20 Blast" },
         { id: "bpl", name: "BPL" },
         { id: "lpl", name: "LPL" },
