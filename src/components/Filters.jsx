@@ -220,7 +220,7 @@ function Filters({ values, onChange, clips }) {
     { type: "searchable", label: "Bowler", key: "bowler", options: uniqueBowler },
     { type: "searchable", label: "Team", key: "team", options: [{ id: "rcb", name: "RCB" }, { id: "csk", name: "CSK" }] },
     {
-      type: "select", label: "League", key: "league", options: [
+      type: "select", label: "League", key: "series", options: [
         { id: "ipl", name: "IPL" },
         { id: "bbl", name: "BBL" },
         { id: "psl", name: "PSL" },
