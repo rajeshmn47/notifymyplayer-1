@@ -43,6 +43,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [selectedQuality, setSelectedQuality] = useState('240p');
   const videoRef = useRef(null);
+  const videoSrc = `${NEW_URL}/${selectedQuality == '240p' ? 'mockvideos' : selectedQuality == '360p' ? '360p' : '720p'}`;
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
@@ -302,12 +303,12 @@ export default function Dashboard() {
     const response = await fetch(`${NEW_URL}/auth/merge`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ clips: selectedClips }),
+      body: JSON.stringify({ clips: selectedClips, quality: selectedQuality }),
     });
     console.log(response, 'res');
     const res = await response.json()
     console.log(res, 'res');
-    const downloadUrl = `${NEW_URL}/mockvideos/${res.file}`;
+    const downloadUrl = `${videoSrc}/${res.file}`;
     const a = document.createElement('a');
     a.target = '_blank';
     a.href = downloadUrl;
