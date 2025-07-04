@@ -586,6 +586,10 @@ function EditClipForm({ clip, onSave }) {
 }
 
 function matchesWithSynonyms(clipValue, filterValue, key) {
+  console.log(clipValue, filterValue, key)
+  if (key == "isCleanBowled") {
+    return clipValue?.toLowerCase().includes("bowled!")
+  }
   if (!clipValue || !filterValue) return false;
   const normalizedClip = String(clipValue).toLowerCase();
   const normalizedFilter = String(filterValue).toLowerCase();
