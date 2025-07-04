@@ -307,7 +307,7 @@ export default function Dashboard() {
     console.log(response, 'res');
     const res = await response.json()
     console.log(res, 'res');
-    const downloadUrl = `${URL}/mockvideos/${res.file}`;
+    const downloadUrl = `${VIDEO_URL}/mockvideos/${res.file}`;
     const a = document.createElement('a');
     a.target = '_blank';
     a.href = downloadUrl;
