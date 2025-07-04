@@ -358,7 +358,6 @@ export default function Dashboard() {
     setClips(prev => prev.filter(c => c._id !== clip._id));
   }
 
-  const videoSrc = `${NEW_URL}/${selectedQuality == '240p' ? 'mockvideos' : selectedQuality == '360p' ? '360p' : '720p'}`;
 
   //console.log(filterValues, clips, 'filterValues');
   //console.log(filteredClips, 'filteredClips');
