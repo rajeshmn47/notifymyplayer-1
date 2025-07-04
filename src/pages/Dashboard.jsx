@@ -8,7 +8,7 @@ import { Filter, Search } from 'lucide-react';
 import Filters from '../components/Filters';
 import { Switch } from '../components/ui/switch';
 import { API } from '../actions/userAction';
-import { HTTPS_URL, NEW_URL, URL, VIDEO_URL } from '../constants/userConstants';
+import { HTTPS_URL, NEW_URL, URL } from '../constants/userConstants';
 import axios from 'axios';
 import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 import VideoTrimmer from '../VideoTrimmer';
@@ -299,7 +299,7 @@ export default function Dashboard() {
 
   const handleMergeAndDownload = async () => {
     setLoading(true)
-    const response = await fetch(`${URL}/auth/merge`, {
+    const response = await fetch(`${NEW_URL}/auth/merge`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ clips: selectedClips }),
@@ -307,7 +307,7 @@ export default function Dashboard() {
     console.log(response, 'res');
     const res = await response.json()
     console.log(res, 'res');
-    const downloadUrl = `${VIDEO_URL}/mockvideos/${res.file}`;
+    const downloadUrl = `${NEW_URL}/mockvideos/${res.file}`;
     const a = document.createElement('a');
     a.target = '_blank';
     a.href = downloadUrl;
