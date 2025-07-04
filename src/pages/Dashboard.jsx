@@ -40,9 +40,9 @@ export default function Dashboard() {
   const [trimmingClip, setTrimmingClip] = useState(null);
   const editClipForm = useRef(null);
   const [clips, setClips] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedQuality, setSelectedQuality] = useState('720p');
-
+  const [loading, setLoading] = useState(false);
+  const [selectedQuality, setSelectedQuality] = useState('240p');
+  const videoRef = useRef(null);
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
@@ -357,7 +357,9 @@ export default function Dashboard() {
     setClips(prev => prev.filter(c => c._id !== clip._id));
   }
 
-  console.log(filterValues, 'filterValues');
+  const videoSrc = `${NEW_URL}/${selectedQuality == '240p' ? 'mockvideos' : selectedQuality == '360p' ? '360p' : '720p'}`;
+
+  //console.log(filterValues, clips, 'filterValues');
   //console.log(filteredClips, 'filteredClips');
 
   return (
@@ -393,7 +395,8 @@ export default function Dashboard() {
             onChange={(e) => setSelectedQuality(e.target.value)}
           >
             <option value="720p">High (720p)</option>
-            <option value="360p">Low (360p)</option>
+            <option value="360p">Medium (360p)</option>
+            <option value="240p">Low (240p)</option>
           </select>
         </div>
         <div className="flex flex-col xs:flex-row flex-wrap gap-2 flex-1 justify-end">
@@ -474,8 +477,8 @@ export default function Dashboard() {
             >
               {`${URL}/mockvideos/${clip.clip}`}
             </a>*/}
-            <video controls className="w-full rounded-t-xl aspect-video bg-black min-h-[180px] sm:min-h-[220px] md:min-h-[240px]">
-              <source src={`${NEW_URL}/mockvideos/${clip.clip}`} type="video/mp4" />
+            <video key={clip._id + selectedQuality} ref={videoRef} controls className="w-full rounded-t-xl aspect-video bg-black min-h-[180px] sm:min-h-[220px] md:min-h-[240px]">
+              <source src={`${videoSrc}/${clip.clip}`} type="video/mp4" />
             </video>
             <CardContent className='relative space-y-1 pt-2'>
               <p className="font-semibold text-base sm:text-lg text-blue-900">{clip.batsman}</p>
