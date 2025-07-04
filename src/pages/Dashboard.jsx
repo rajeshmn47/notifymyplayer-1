@@ -40,57 +40,30 @@ export default function Dashboard() {
   const [trimmingClip, setTrimmingClip] = useState(null);
   const editClipForm = useRef(null);
   const [clips, setClips] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedQuality, setSelectedQuality] = useState('720p');
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
 
-  useEffect(() => {
-    //dispatch(loadUser());
-    const fetchClips = async () => {
-      try {
-        console.log('getting')
-        //setLoading(true);
-        const res = await axios.get(`${URL}/auth/allclips`);
-        //const clipsWithDuration = await Promise.all(
-        //  res.data.map((clip) => getClipWithDuration(clip))
-        //);
-        //const enhancedClips = res.data.map((clip) => {
-        // const inferred = inferDismissals(clip?.event, clip.commentary || "")
-        // return { ...clip, ...inferred }
-        //})
-        console.log(res.data, 'enhanced')
-        setClips([...res.data]);
-        //setClips(clipsWithDuration);
-      } catch (err) {
-        console.error("Error fetching clips:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClips();
-  }, []);
-
   const filteredClips = clips
     .filter((clip) => {
       return Object.entries(filterValues).every(([key, value]) => {
         if (!value) return true;
         const clipValue = clip[key];
-        console.log(clipValue, key, value, 'clip value')
+
         // Semantic matching for shotType, direction, ballType
-        if (["shotType", "direction", "ballType", "isCleanBowled", "connection"].includes(key)) {
+        if (["shotType", "direction", "ballType", "isCleanBowled","connection"].includes(key)) {
           if (key == "isCleanBowled") {
-            value = "isCleanBowled"
+            value = "bowled"
           }
           return (
             matchesWithSynonyms(clip.commentary, value, key)
           );
         }
         if (searchTerm) {
-          if (clip?.commentary?.toLowerCase()?.includes(searchTerm)) {
+          if (clip?.commentary?.includes(searchTerm)) {
             return true;
           }
           else {
@@ -254,7 +227,6 @@ export default function Dashboard() {
         }
 
         // Default: string includes (case-insensitive)
-        //console.log(clipValue, key, value, 'clip value two')
         return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
       });
     });
@@ -327,7 +299,7 @@ export default function Dashboard() {
 
   const handleMergeAndDownload = async () => {
     setLoading(true)
-    const response = await fetch(`${VIDEO_URL}/auth/merge`, {
+    const response = await fetch(`${URL}/auth/merge`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ clips: selectedClips }),
@@ -385,7 +357,7 @@ export default function Dashboard() {
     setClips(prev => prev.filter(c => c._id !== clip._id));
   }
 
-  console.log(filterValues, clips, 'filterValues');
+  console.log(filterValues, 'filterValues');
   //console.log(filteredClips, 'filteredClips');
 
   return (
@@ -398,7 +370,7 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-2 sm:px-4 rounded-xl bg-gradient-to-r from-blue-100/80 to-white/80 shadow-md border border-blue-100 mb-2">
         <div className="flex flex-col items-center sm:items-start w-full sm:w-auto">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-blue-900 drop-shadow-sm text-center sm:text-left tracking-tight leading-tight mb-1">Cricket Clips Dashboard</h1>
-          <span className="text-xs sm:text-sm text-blue-700 font-medium tracking-wide opacity-80">AI-powered searchq &amp; video management</span>
+          <span className="text-xs sm:text-sm text-blue-700 font-medium tracking-wide opacity-80">AI-powered search &amp; video management</span>
         </div>
         <form className="flex items-center w-full sm:w-auto max-w-lg bg-white/90 rounded-lg shadow-sm border border-blue-200 px-2 py-1 focus-within:ring-2 focus-within:ring-blue-200 transition-all">
           <Search className="text-blue-400 mr-2 w-5 h-5" />
