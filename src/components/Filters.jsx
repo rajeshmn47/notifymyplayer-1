@@ -215,10 +215,55 @@ function Filters({ values, onChange, clips }) {
     ]
   };
 
+
+  const teamOptions = [
+    { id: "rcb", name: "RCB" },
+    { id: "csk", name: "CSK" },
+    { id: "mi", name: "MI" },
+    { id: "kkr", name: "KKR" },
+    { id: "srh", name: "SRH" },
+    { id: "gt", name: "GT" },
+    { id: "rr", name: "RR" },
+    { id: "lsg", name: "LSG" },
+    { id: "pbks", name: "PBKS" },
+    { id: "dc", name: "DC" },
+    { id: "tkr", name: "Trinbago Knight Riders" },
+    { id: "gaw", name: "Guyana Amazon Warriors" },
+    { id: "jt", name: "Jamaica Tallawahs" },
+    { id: "slz", name: "Saint Lucia Kings" },
+    { id: "bt", name: "Barbados Royals" },
+    { id: "sknp", name: "St Kitts and Nevis Patriots" },
+    { id: "iu", name: "Islamabad United" },
+    { id: "kk", name: "Karachi Kings" },
+    { id: "lhq", name: "Lahore Qalandars" },
+    { id: "ms", name: "Multan Sultans" },
+    { id: "pz", name: "Peshawar Zalmi" },
+    { id: "qg", name: "Quetta Gladiators" },
+    { id: "ind", name: "India" },
+    { id: "aus", name: "Australia" },
+    { id: "eng", name: "England" },
+    { id: "pak", name: "Pakistan" },
+    { id: "sa", name: "South Africa" },
+    { id: "nz", name: "New Zealand" },
+    { id: "wi", name: "West Indies" },
+    { id: "ban", name: "Bangladesh" },
+    { id: "afg", name: "Afghanistan" },
+    { id: "sl", name: "Sri Lanka" },
+    { id: "ire", name: "Ireland" },
+    { id: "ned", name: "Netherlands" },
+    { id: "zim", name: "Zimbabwe" },
+    { id: "nam", name: "Namibia" },
+    { id: "uae", name: "UAE" },
+    { id: "oma", name: "Oman" },
+    { id: "usa", name: "USA" },
+    { id: "nep", name: "Nepal" },
+    { id: "sco", name: "Scotland" }
+  ]
+
   const filterConfig = [
     { type: "searchable", label: "Batsman", key: "batsman", options: uniqueBatsmen },
     { type: "searchable", label: "Bowler", key: "bowler", options: uniqueBowler },
-    { type: "searchable", label: "Team", key: "team", options: [{ id: "rcb", name: "RCB" }, { id: "csk", name: "CSK" }] },
+    { type: "searchable", label: "Team", key: "batting_team", options: teamOptions },
     {
       type: "select", label: "League", key: "series", options: [
         { id: "ipl", name: "IPL" },
