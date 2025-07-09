@@ -15,7 +15,7 @@ const PlaylistsPage = () => {
     const [editingPlaylistTitle, setEditingPlaylistTitle] = useState("");
     const [newTitle, setNewTitle] = useState("");
     const [editableClips, setEditableClips] = useState([]);
-
+    const [showMobileModal, setShowMobileModal] = useState(false);
 
     const videoSrc = `${NEW_URL}/${selectedQuality == '240p' ? 'mockvideos' : selectedQuality == '360p' ? '360p' : '720p'}`;
 
@@ -122,6 +122,10 @@ const PlaylistsPage = () => {
                                             onClick={() => {
                                                 setExpandedPlaylist(title);
                                                 setSelectedClips(clips);
+                                                  if (window.innerWidth < 640) {
+    // sm breakpoint
+    setShowMobileModal(true);
+  }
                                             }}
                                             className="text-sm px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition"
                                             title="View playlist clips"
@@ -242,6 +246,33 @@ const PlaylistsPage = () => {
                     </div>
                 </div>
             )}
+            {showMobileModal && (
+                <div className="fixed inset-0 z-50 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center px-4">
+                    <div className="bg-white w-full max-w-md rounded-xl p-4 space-y-4 relative shadow-xl max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-lg font-bold text-blue-800">🎥 {expandedPlaylist}</h2>
+                            <button
+                                onClick={() => setShowMobileModal(false)}
+                                className="text-gray-600 hover:text-gray-800"
+                            >
+                                ✖️
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3">
+                            {selectedClips.map((clipUrl, i) => (
+                                <video
+                                    key={i}
+                                    src={`${NEW_URL}/mockvideos/${clipUrl}`}
+                                    controls
+                                    className="rounded-lg shadow"
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };
