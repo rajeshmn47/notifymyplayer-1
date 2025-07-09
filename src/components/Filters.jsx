@@ -338,7 +338,7 @@ function Filters({ values, onChange, clips }) {
   const basicFilterKeys = [
     "batsman",
     "bowler",
-    "team",
+    "batting_team",
     "ballType"
   ];
 
