@@ -278,7 +278,6 @@ function Filters({ values, onChange, clips }) {
         { id: "other", name: "Other" }
       ]
     },
-    { type: "select", label: "Shot Type", key: "shotType", options: shotTypes },
     { type: "select", label: "Bowler Type", key: "bowlerType", options: [{ id: "pace", name: "Pace" }, { id: "spin", name: "Spin" }] },
     { type: "select", label: "Batting Hand", key: "battingHand", options: [{ id: "left", name: "Left" }, { id: "right", name: "Right" }] },
     { type: "select", label: "Bowling Hand", key: "bowlingHand", options: [{ id: "left", name: "Left" }, { id: "right", name: "Right" }] },
@@ -300,12 +299,6 @@ function Filters({ values, onChange, clips }) {
       ]
     },
     { type: "select", label: "Over Range", key: "overRange", options: [{ id: "1-6", name: "1-6" }, { id: "7-15", name: "7-15" }, { id: "16-20", name: "16-20" }] },
-    {
-      key: "connection",
-      label: "Connection Type",
-      type: "select",
-      groups: connectionGroups,
-    },
     { type: "boolean", label: "Is Boundary", key: "isBoundary" },
     { type: "boolean", label: "Is Six", key: "isSix" },
     { type: "boolean", label: "Is Four", key: "isFour" },
@@ -326,8 +319,10 @@ function Filters({ values, onChange, clips }) {
         { id: "10+", name: "10+ sec" },
       ],
     },
+    { type: "select", label: "Shot Type", key: "shotType", options: shotTypes },
     { type: "select", label: "Ball Type", key: "ballType", options: ballTypes },
     { type: "select", label: "Direction", key: "direction", options: directionOptions },
+    { key: "connection", label: "Connection Type", type: "select", groups: connectionGroups },
     { type: "searchable", label: "Caught By", key: "caughtBy", options: uniqueFielders },
     { type: "searchable", label: "Run Out By", key: "runOutBy", options: uniqueFielders },
     { type: "boolean", label: "Is Dropped", key: "isDropped" },
@@ -339,7 +334,7 @@ function Filters({ values, onChange, clips }) {
     "batsman",
     "bowler",
     "batting_team",
-    "ballType"
+    "series"
   ];
 
   // Filter config for current mode
