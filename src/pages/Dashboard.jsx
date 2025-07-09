@@ -51,24 +51,44 @@ export default function Dashboard() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
+  const [newPlaylistName, setNewPlaylistName] = useState("");
+  const [playlists, setPlaylists] = useState({});
+
+  useEffect(() => {
+    const stored = { ...localStorage };
+    const loadedPlaylists = {};
+
+    Object.keys(stored).forEach((key) => {
+      try {
+        const value = JSON.parse(stored[key]);
+        if (Array.isArray(value)) {
+          loadedPlaylists[key] = value;
+        }
+      } catch (e) {
+        console.error(`Invalid JSON in playlist: ${key}`);
+      }
+    });
+
+    setPlaylists(loadedPlaylists);
+  }, []);
 
   const filteredClips = clips
     .filter((clip) => {
       return Object.entries(filterValues).every(([key, value]) => {
         if (!value) return true;
         const clipValue = clip[key];
-
+        console.log(clipValue, key, value, 'clip value')
         // Semantic matching for shotType, direction, ballType
-        if (["shotType", "direction", "ballType", "isCleanBowled","connection"].includes(key)) {
+        if (["shotType", "direction", "ballType", "isCleanBowled", "connection"].includes(key)) {
           if (key == "isCleanBowled") {
-            value = "bowled"
+            value = "isCleanBowled"
           }
           return (
             matchesWithSynonyms(clip.commentary, value, key)
           );
         }
         if (searchTerm) {
-          if (clip?.commentary?.includes(searchTerm)) {
+          if (clip?.commentary?.toLowerCase()?.includes(searchTerm)) {
             return true;
           }
           else {
@@ -232,6 +252,7 @@ export default function Dashboard() {
         }
 
         // Default: string includes (case-insensitive)
+        //console.log(clipValue, key, value, 'clip value two')
         return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
       });
     });
@@ -362,7 +383,7 @@ export default function Dashboard() {
     setClips(prev => prev.filter(c => c._id !== clip._id));
   }
 
-  const handleAddToPlaylist = () => {
+  const handleAddToPlayliste = () => {
     if (!playlistName || selectedClips.length === 0) return;
 
     // Example: Save to localStorage or backend
@@ -376,6 +397,31 @@ export default function Dashboard() {
     setShowPlaylistModal(false);
     alert("Clips added to playlist!");
   };
+
+  const handleAddToPlaylist = () => {
+    const finalName =
+      playlistName === "__new__" ? newPlaylistName.trim() : playlistName;
+
+    if (!finalName) {
+      alert("Please enter a valid playlist name.");
+      return;
+    }
+
+    // Get existing clips (if any)
+    const existingClips = JSON.parse(localStorage.getItem(finalName) || "[]");
+
+    // Merge and deduplicate
+    const updatedClips = Array.from(new Set([...existingClips, ...selectedClips]));
+
+    // Save back to localStorage
+    localStorage.setItem(finalName, JSON.stringify(updatedClips));
+
+    // Reset
+    setPlaylistName("");
+    setNewPlaylistName("");
+    setShowPlaylistModal(false);
+  };
+
 
   //console.log(filterValues, clips, 'filterValues');
   //console.log(filteredClips, 'filteredClips');
@@ -416,8 +462,24 @@ export default function Dashboard() {
             <option value="360p">Medium (360p)</option>
             <option value="240p">Low (240p)</option>
           </select>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/playlists")}
+            className="text-sm w-full"
+          >
+            🎬 View Playlists
+          </Button>
+          <Button
+            variant="ghost"
+            disabled={selectedClips.length === 0}
+            onClick={() => setShowPlaylistModal(true)}
+            className="bg-green-100 text-green-700 hover:bg-green-200 text-xs sm:text-base w-full xs:w-full"
+          >
+            ➕ Add to Playlist
+          </Button>
         </div>
         <div className="flex flex-col xs:flex-row flex-wrap gap-2 flex-1 justify-end">
+          <label className="text-xs sm:text-sm font-medium text-gray-700">Select All:</label>
           <div className="flex items-center justify-end gap-2 w-full">
             <Button
               variant="outline"
@@ -431,15 +493,6 @@ export default function Dashboard() {
               className="border-blue-300 hover:bg-blue-50 text-xs sm:text-base w-full xs:w-auto"
             >
               {selectedClips.length === filteredClips.length ? 'Deselect All' : 'Select All'}
-            </Button>
-          </div>
-          <div className="flex justify-between items-center mb-4">
-            <Button
-              variant="outline"
-              onClick={() => navigate("/playlists")}
-              className="text-sm w-full"
-            >
-              🎬 View Playlists
             </Button>
           </div>
           <Button
@@ -457,14 +510,6 @@ export default function Dashboard() {
             className="bg-blue-500 text-white hover:bg-blue-600 text-xs sm:text-base w-full xs:w-auto"
           >
             🎞️ Combine & Download
-          </Button>
-          <Button
-            variant="ghost"
-            disabled={selectedClips.length === 0}
-            onClick={() => setShowPlaylistModal(true)}
-            className="bg-green-100 text-green-700 hover:bg-green-200 text-xs sm:text-base w-full xs:w-full"
-          >
-            ➕ Add to Playlist
           </Button>
         </div>
       </div>
@@ -601,13 +646,32 @@ export default function Dashboard() {
           <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
             <h2 className="text-lg font-bold mb-4">Add to Playlist</h2>
 
-            <input
-              type="text"
-              placeholder="Enter Playlist Name"
+            <label className="text-sm font-medium text-gray-700 mb-1 block">
+              Select or create playlist
+            </label>
+            <select
+              className="w-full border px-3 py-2 rounded mb-2"
               value={playlistName}
               onChange={(e) => setPlaylistName(e.target.value)}
-              className="w-full border px-3 py-2 rounded mb-4"
-            />
+            >
+              <option value="">-- Select Playlist --</option>
+              {Object.keys(playlists).map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+              <option value="__new__">➕ Create New Playlist</option>
+            </select>
+
+            {playlistName === "__new__" && (
+              <input
+                type="text"
+                placeholder="Enter New Playlist Name"
+                value={newPlaylistName}
+                onChange={(e) => setNewPlaylistName(e.target.value)}
+                className="w-full border px-3 py-2 rounded mb-4"
+              />
+            )}
 
             <div className="flex justify-end gap-2">
               <Button
@@ -618,8 +682,15 @@ export default function Dashboard() {
               </Button>
               <Button
                 variant="default"
-                onClick={handleAddToPlaylist}
-                disabled={!playlistName}
+                onClick={() =>
+                  handleAddToPlaylist(
+                    playlistName === "__new__" ? newPlaylistName : playlistName
+                  )
+                }
+                disabled={
+                  playlistName === "" ||
+                  (playlistName === "__new__" && !newPlaylistName.trim())
+                }
               >
                 ➕ Add
               </Button>
@@ -627,7 +698,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

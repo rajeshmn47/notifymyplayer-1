@@ -5,11 +5,19 @@ import { Trash2, PlayCircle, Download } from "lucide-react";
 import { NEW_URL } from "./../constants/userConstants"; // Adjust this import based on your project structure
 
 const PlaylistsPage = () => {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [playlists, setPlaylists] = useState({});
     const [expandedPlaylist, setExpandedPlaylist] = useState(null);
     const [selectedClips, setSelectedClips] = useState([]);
+    const [selectedQuality, setSelectedQuality] = useState('240p');
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingPlaylistTitle, setEditingPlaylistTitle] = useState("");
+    const [newTitle, setNewTitle] = useState("");
+    const [editableClips, setEditableClips] = useState([]);
 
-    const navigate = useNavigate();
+
+    const videoSrc = `${NEW_URL}/${selectedQuality == '240p' ? 'mockvideos' : selectedQuality == '360p' ? '360p' : '720p'}`;
 
     useEffect(() => {
         const allKeys = Object.keys(localStorage);
@@ -48,6 +56,37 @@ const PlaylistsPage = () => {
         });
         alert("Download started (simulated).");
     };
+
+    const handleMergeAndDownload = async () => {
+        setLoading(true)
+        const response = await fetch(`${NEW_URL}/auth/merge`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ clips: selectedClips, quality: selectedQuality }),
+        });
+        console.log(response, 'res');
+        const res = await response.json()
+        console.log(res, 'res');
+        const downloadUrl = `${videoSrc}/${res.file}`;
+        const a = document.createElement('a');
+        a.target = '_blank';
+        a.href = downloadUrl;
+        a.download = res.file;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setLoading(false)
+    };
+
+    const handleSave = () => {
+        if (newTitle !== editingPlaylistTitle) {
+            localStorage.removeItem(editingPlaylistTitle);
+        }
+        localStorage.setItem(
+            newTitle,
+            JSON.stringify([...editableClips])
+        );
+    }
 
     return (
         <div className="p-4 sm:p-6 min-h-screen bg-gradient-to-br from-blue-50 to-white space-y-6">
@@ -91,19 +130,23 @@ const PlaylistsPage = () => {
                                         </button>
                                         <button
                                             onClick={() => {
-                                                clips.forEach((clipUrl) => {
-                                                    const a = document.createElement("a");
-                                                    a.href = `${NEW_URL}/mockvideos/${clipUrl}`;
-                                                    a.download = clipUrl.split("/").pop();
-                                                    document.body.appendChild(a);
-                                                    a.click();
-                                                    document.body.removeChild(a);
-                                                });
+                                                handleMergeAndDownload()
                                             }}
                                             className="text-sm px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-md transition"
                                             title="Download all clips"
                                         >
                                             📥 Download
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setIsEditing(true);
+                                                setEditingPlaylistTitle(title);
+                                                setNewTitle(title);
+                                                setEditableClips([...clips]);
+                                            }}
+                                            className="text-sm px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-md transition"
+                                        >
+                                            ✏️ Edit
                                         </button>
                                     </div>
                                 </div>
@@ -142,7 +185,63 @@ const PlaylistsPage = () => {
                     )}
                 </div>
             </div>
+            {isEditing && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-md p-6 rounded-xl shadow-xl space-y-4 relative">
+                        <h2 className="text-xl font-bold text-blue-800">Edit Playlist</h2>
 
+                        {/* Playlist Title Rename */}
+                        <div className="space-y-1">
+                            <label className="block text-sm font-medium text-gray-700">Rename Playlist</label>
+                            <input
+                                value={newTitle}
+                                onChange={(e) => setNewTitle(e.target.value)}
+                                className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            />
+                        </div>
+
+                        {/* Clip List */}
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                            {editableClips.map((clip, index) => (
+                                <div key={index} className="flex justify-between items-center px-3 py-2 bg-gray-50 rounded">
+                                    <span className="text-sm text-gray-700 truncate">{clip}</span>
+                                    <button
+                                        onClick={() => {
+                                            setEditableClips(editableClips.filter((_, i) => i !== index));
+                                        }}
+                                        className="text-xs text-red-500 hover:underline"
+                                    >
+                                        ❌ Remove
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex justify-end gap-3 pt-4">
+                            <button
+                                onClick={() => setIsEditing(false)}
+                                className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const updated = { ...playlists };
+                                    delete updated[editingPlaylistTitle];
+                                    updated[newTitle] = editableClips;
+                                    setPlaylists(updated);
+                                    setIsEditing(false);
+                                    handleSave()
+                                }}
+                                className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                            >
+                                ✅ Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
