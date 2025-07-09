@@ -17,6 +17,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { loadUser } from '../actions/userAction';
 import cricketSynonyms from '../utils/cricket_synonyms.json';
 import exclusionMap from '../utils/exclusion_map.json';
+import { useNavigate } from 'react-router-dom';
 
 const filters = [
   'Match', 'Player', 'Shot Type', 'Over', 'Ball', 'Batting Team', 'Bowler', 'Striker', 'Non-Striker',
@@ -41,6 +42,9 @@ export default function Dashboard() {
   const editClipForm = useRef(null);
   const [clips, setClips] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [playlistName, setPlaylistName] = useState("");
+  const navigate = useNavigate();
   const [selectedQuality, setSelectedQuality] = useState('240p');
   const videoRef = useRef(null);
   const videoSrc = `${NEW_URL}/${selectedQuality == '240p' ? 'mockvideos' : selectedQuality == '360p' ? '360p' : '720p'}`;
@@ -358,6 +362,20 @@ export default function Dashboard() {
     setClips(prev => prev.filter(c => c._id !== clip._id));
   }
 
+  const handleAddToPlaylist = () => {
+    if (!playlistName || selectedClips.length === 0) return;
+
+    // Example: Save to localStorage or backend
+    const existing = JSON.parse(localStorage.getItem(playlistName)) || [];
+    localStorage.setItem(
+      playlistName,
+      JSON.stringify([...existing, ...selectedClips])
+    );
+
+    setPlaylistName("");
+    setShowPlaylistModal(false);
+    alert("Clips added to playlist!");
+  };
 
   //console.log(filterValues, clips, 'filterValues');
   //console.log(filteredClips, 'filteredClips');
@@ -415,6 +433,15 @@ export default function Dashboard() {
               {selectedClips.length === filteredClips.length ? 'Deselect All' : 'Select All'}
             </Button>
           </div>
+          <div className="flex justify-between items-center mb-4">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/playlists")}
+              className="text-sm w-full"
+            >
+              🎬 View Playlists
+            </Button>
+          </div>
           <Button
             variant="secondary"
             disabled={selectedClips.length === 0}
@@ -430,6 +457,14 @@ export default function Dashboard() {
             className="bg-blue-500 text-white hover:bg-blue-600 text-xs sm:text-base w-full xs:w-auto"
           >
             🎞️ Combine & Download
+          </Button>
+          <Button
+            variant="ghost"
+            disabled={selectedClips.length === 0}
+            onClick={() => setShowPlaylistModal(true)}
+            className="bg-green-100 text-green-700 hover:bg-green-200 text-xs sm:text-base w-full xs:w-full"
+          >
+            ➕ Add to Playlist
           </Button>
         </div>
       </div>
@@ -561,6 +596,38 @@ export default function Dashboard() {
           </DialogContent>
         </Dialog>
       )}
+      {showPlaylistModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4">Add to Playlist</h2>
+
+            <input
+              type="text"
+              placeholder="Enter Playlist Name"
+              value={playlistName}
+              onChange={(e) => setPlaylistName(e.target.value)}
+              className="w-full border px-3 py-2 rounded mb-4"
+            />
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => setShowPlaylistModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="default"
+                onClick={handleAddToPlaylist}
+                disabled={!playlistName}
+              >
+                ➕ Add
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
