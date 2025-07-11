@@ -114,48 +114,48 @@ const PlaylistsPage = () => {
                         >
                             <div className="flex flex-col gap-2">
                                 <div className="flex items-center justify-between">
-                                    <h2 className="text-base sm:text-lg font-semibold text-blue-800 truncate max-w-[180px]">
+                                    <h2 className="text-base sm:text-sm font-semibold text-blue-800 truncate w-full">
                                         🎬 {title}
                                     </h2>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => {
-                                                setExpandedPlaylist(title);
-                                                setSelectedClips(clips);
-                                                  if (window.innerWidth < 640) {
-    // sm breakpoint
-    setShowMobileModal(true);
-  }
-                                            }}
-                                            className="text-sm px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition"
-                                            title="View playlist clips"
-                                        >
-                                            👁️ View
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                handleMergeAndDownload()
-                                            }}
-                                            className="text-sm px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-md transition"
-                                            title="Download all clips"
-                                        >
-                                            📥 Download
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setIsEditing(true);
-                                                setEditingPlaylistTitle(title);
-                                                setNewTitle(title);
-                                                setEditableClips([...clips]);
-                                            }}
-                                            className="text-sm px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-md transition"
-                                        >
-                                            ✏️ Edit
-                                        </button>
+                                    <div className="text-xs text-gray-500 whitespace-nowrap">
+                                        {clips.length} clip{clips.length !== 1 ? 's' : ''}
                                     </div>
                                 </div>
-                                <div className="text-xs text-gray-500">
-                                    {clips.length} clip{clips.length !== 1 ? 's' : ''}
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => {
+                                            setExpandedPlaylist(title);
+                                            setSelectedClips(clips);
+                                            if (window.innerWidth < 640) {
+                                                // sm breakpoint
+                                                setShowMobileModal(true);
+                                            }
+                                        }}
+                                        className="text-sm px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition"
+                                        title="View playlist clips"
+                                    >
+                                        👁️ View
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            handleMergeAndDownload()
+                                        }}
+                                        className="text-sm px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-md transition"
+                                        title="Download all clips"
+                                    >
+                                        📥 Download
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setIsEditing(true);
+                                            setEditingPlaylistTitle(title);
+                                            setNewTitle(title);
+                                            setEditableClips([...clips]);
+                                        }}
+                                        className="text-sm px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-md transition"
+                                    >
+                                        ✏️ Edit
+                                    </button>
                                 </div>
                             </div>
                         </div>
