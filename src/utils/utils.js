@@ -1,6 +1,6 @@
 const dismissalKeywords = {
   isLBW: ["lbw", "leg before", "trapped in front"],
-  isCleanBowled: ["bowled", "clean bowled", "chopped on", "through the gate"],
+  isCleanBowled: ["bowled!", "clean bowled", "chopped on", "through the gate"],
   isStumping: ["stumped", "misses and out of the crease", "quick hands"],
   isCatch: ["caught", "taken", "edge and gone", "simple catch", "nick", "snagged"],
   isRunout: ["run out", "direct hit", "unlucky", "brilliant fielding"],
@@ -38,14 +38,14 @@ export function filterClips(clips, filterValues, searchTerm) {
       // Semantic matching for shotType, direction, ballType
       if (["shotType", "direction", "ballType", "isCleanBowled"].includes(key)) {
         if (key == "isCleanBowled") {
-          value = "bowled";
+          value = "a";
         }
         return (
           matchesWithSynonyms(clip.commentary, value, key)
         );
       }
       if (searchTerm) {
-        if (clip?.commentary?.includes(searchTerm)) {
+        if (clip?.commentary?.toLowerCase().includes(searchTerm)) {
           return true;
         } else {
           return false;

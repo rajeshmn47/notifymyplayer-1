@@ -89,10 +89,7 @@ export default function Dashboard() {
         }
         if (searchTerm) {
           if (clip?.commentary?.toLowerCase()?.includes(searchTerm)) {
-            return true;
-          }
-          else {
-            return false;
+            //return true;
           }
         }
         // Keeper Catch filter logic
@@ -120,9 +117,9 @@ export default function Dashboard() {
             if (clip?.bowler?.toLowerCase() == value?.toLowerCase()) {
               return false;
             }
-            const fieldersNamedSame = fiel.filter(player =>
-              player.toLowerCase().includes(values[0]?.toLowerCase()) || player.toLowerCase().includes(values[1]?.toLowerCase())
-            );
+            //const fieldersNamedSame = clips.filter(player =>
+            ////  player.toLowerCase().includes(values[0]?.toLowerCase()) || player.toLowerCase().includes(values[1]?.toLowerCase())
+            //);
             let droppedByValue = value?.split(" ")?.[0]?.toLowerCase();
             let droppedByValue2 = value?.split(" ")?.[1]?.toLowerCase();
             console.log(values, values?.length, droppedByValue, droppedByValue2, 'testValue');
@@ -255,6 +252,9 @@ export default function Dashboard() {
         //console.log(clipValue, key, value, 'clip value two')
         return clipValue && String(clipValue).toLowerCase().includes(String(value).toLowerCase());
       });
+    }).filter((clip) => {
+      if (!searchTerm) return true;
+      return clip.commentary?.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
   // Calculate paginated clips
