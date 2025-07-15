@@ -278,6 +278,7 @@ function Filters({ values, onChange, clips }) {
         { id: "other", name: "Other" }
       ]
     },
+    { type: "searchable", label: "Bowling Team", key: "bowling_team", options: teamOptions },
     { type: "select", label: "Bowler Type", key: "bowlerType", options: [{ id: "fast", name: "fast" }, { id: "spin", name: "Spin" }] },
     { type: "select", label: "Batting Hand", key: "battingHand", options: [{ id: "left", name: "Left" }, { id: "right", name: "Right" }] },
     { type: "select", label: "Bowling Hand", key: "bowlingHand", options: [{ id: "left", name: "Left" }, { id: "right", name: "Right" }] },
