@@ -1,4 +1,16 @@
 {
+  "shotType": {
+    "cut": [
+      "cut it off",
+      "cut loose",
+      "upper cut",
+      "cut him in",
+      "cut short",
+      "upper-cut",
+      "cut the angle",
+      "cut back"
+    ]
+  },
   "direction": {
     "point": [
       "point of impact",
@@ -13,10 +25,8 @@
     "long_on": [
       "No chance for long-on"
     ],
-    "mid_wicket": [
-    ],
-    "square_leg": [
-    ],
+    "mid_wicket": [],
+    "square_leg": [],
     "fine_leg": [
       "deep fine leg"
     ],
@@ -39,7 +49,7 @@
       "short of a good length",
       "shorter than good length"
     ],
-    "yorker":[
+    "yorker": [
       "full toss",
       "full-toss",
       "just misses the mark",
@@ -62,6 +72,11 @@
       "misses the wide yorker",
       "missed the yorker",
       "The yorker is missed"
+    ]
+  },
+  "lofted": {
+    "lofted": [
+      "That was hit uppishly"
     ]
   }
 }

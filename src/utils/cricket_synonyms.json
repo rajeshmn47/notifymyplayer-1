@@ -458,12 +458,12 @@
       "caught by †wicketkeeper"
     ]
   },
-  "isCleanBowled":{
+  "isCleanBowled": {
     "isCleanBowled": [
       "Bowled"
     ]
   },
-  "connection":{
+  "connection": {
     "inside_edge": [
       "inside edge",
       "inside-edge"
@@ -490,7 +490,7 @@
     ],
     "bottom_edge": [
       "bottom edge",
-      "bottom-edge" 
+      "bottom-edge"
     ]
   }
 }
