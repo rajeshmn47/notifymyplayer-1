@@ -60,7 +60,8 @@ function geturl() {
         // return "http://dream-env.eba-6d6ds7up.us-east-1.elasticbeanstalk.com";
         // return "https://backendforpuand-dream11.onrender.com";
         // return 'https://apk.thepowerplay.co';
-         return "http://31.97.61.35:3000";
+        // return "http://31.97.61.35:3000";
+        return "https://dream11bet.duckdns.org"
         //return "http://localhost:9000";
         // return 'http://192.168.237.175:8000';
         // return 'http://46.28.44.4:8000';
