@@ -79,7 +79,7 @@ export default function PlayerSelection() {
   // Inside PlayerSelection component
   const handleSave = async () => {
     try {
-      const res = await axios.post("http://localhost:9000/notify/save-players", {
+      const res = await API.post(`${URL}/notify/save-players`, {
         user_id: user?._id,
         players: [...selectedPlayers]
       });

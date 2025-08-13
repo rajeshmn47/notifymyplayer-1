@@ -90,7 +90,8 @@ function geturl() {
 function getfrontendurl() {
     const current = "local";
     if (current == 'local') {
-        return 'http://localhost:3000';
+        //return 'http://localhost:3000';
+        return "https://dream11bet.duckdns.org";
     }
     return 'https://dream-11-clone-nu.vercel.app';
 }
