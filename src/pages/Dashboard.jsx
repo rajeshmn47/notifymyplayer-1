@@ -1,6 +1,7 @@
 import { API, loadUser } from "@/actions/userAction";
 import { URL } from "@/constants/userConstants";
 import axios from "axios";
+import {useNavigate} from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -20,6 +21,7 @@ export default function PlayerSelection() {
   const [selectedPlayers, setSelectedPlayers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [playersList, setPlayersList] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(loadUser());
@@ -79,11 +81,16 @@ export default function PlayerSelection() {
   // Inside PlayerSelection component
   const handleSave = async () => {
     try {
+      if(user?._id){
       const res = await API.post(`${URL}/notify/save-players`, {
         user_id: user?._id,
         players: [...selectedPlayers]
       });
       alert(res.data.message);
+     }
+    else{
+     navigate('/register')
+    }
     } catch (err) {
       console.error("Error saving players", err);
       alert("Failed to save players.");

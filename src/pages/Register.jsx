@@ -52,14 +52,14 @@ export function Register() {
       const data = await axios.post(`${URL}/auth/register`, formData);
       if (data.data.success) {
         setSuccess(data.data.message);
-        alert.success(data.data.message);
+        alert(data.data.message);
         navigate('/login');
       } else {
-        alert.error(data.data.message);
+        alert(data.data.message);
         setErr(data.data.message);
       }
     } catch (e) {
-      alert.error(e.response?.data?.message || 'Something went wrong');
+      alert(e.response?.data?.message || 'Something went wrong');
       setErr(e.response?.data?.message);
     }
   };
