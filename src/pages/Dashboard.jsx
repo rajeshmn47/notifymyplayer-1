@@ -1,7 +1,7 @@
 import { API, loadUser } from "@/actions/userAction";
 import { URL } from "@/constants/userConstants";
 import axios from "axios";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -81,16 +81,16 @@ export default function PlayerSelection() {
   // Inside PlayerSelection component
   const handleSave = async () => {
     try {
-      if(user?._id){
-      const res = await API.post(`${URL}/notify/save-players`, {
-        user_id: user?._id,
-        players: [...selectedPlayers]
-      });
-      alert(res.data.message);
-     }
-    else{
-     navigate('/register')
-    }
+      if (user?._id) {
+        const res = await API.post(`${URL}/notify/save-players`, {
+          user_id: user?._id,
+          players: [...selectedPlayers]
+        });
+        alert(res.data.message);
+      }
+      else {
+        navigate('/register')
+      }
     } catch (err) {
       console.error("Error saving players", err);
       alert("Failed to save players.");
@@ -114,13 +114,16 @@ export default function PlayerSelection() {
         onChange={e => setSearchTerm(e.target.value)}
         className="w-full p-2 border rounded shadow"
       />
-
-
-
       {/* 🧍 Player Cards */}
       <div className="grid grid-cols-2 gap-4">
         {filteredPlayers.map(player => (
           <div key={player.id} className="border p-4 rounded shadow">
+            <img
+              width='40'
+              height='40'
+              src={`https://firebasestorage.googleapis.com/v0/b/dreamelevenclone.appspot.com/o/images%2F${player.id}.png?alt=media&token=4644f151-3dfd-4883-9398-4191bed34854`}
+              alt=""
+            />
             <p className="font-medium">{player.name}</p>
             <div className="flex space-x-2 mt-2">
               <button
