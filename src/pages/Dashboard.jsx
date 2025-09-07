@@ -1,19 +1,8 @@
 import { API, loadUser } from "@/actions/userAction";
 import { URL } from "@/constants/userConstants";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-const playersList = [
-  { id: 1, name: "Virat Kohli" },
-  { id: 2, name: "Jasprit Bumrah" },
-  { id: 3, name: "Rohit Sharma" },
-  { id: 4, name: "Ravindra Jadeja" },
-  { id: 5, name: "KL Rahul" },
-  { id: 6, name: "MS Dhoni" },
-  // Add more players...
-];
 
 export default function PlayerSelection() {
   const { user } = useSelector(state => state.user || {});
@@ -21,6 +10,7 @@ export default function PlayerSelection() {
   const [selectedPlayers, setSelectedPlayers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [playersList, setPlayersList] = useState([]);
+  const [loading, setLoading] = useState(true);   // 👈 Added loading state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,11 +18,12 @@ export default function PlayerSelection() {
     const fetchMatchesList = async () => {
       try {
         const res = await API.get(`https://mangogames.fun/api/allplayers`);
-        let xyz = res.data.player.map((m) => { return { ...m } })
-        console.log(xyz, 'xyz')
+        let xyz = res.data.player.map((m) => ({ ...m }));
         setPlayersList(xyz || []);
       } catch (error) {
         console.error("Error fetching series list:", error);
+      } finally {
+        setLoading(false);   // 👈 Stop loader
       }
     };
     fetchMatchesList();
@@ -42,9 +33,7 @@ export default function PlayerSelection() {
     const fetchMyPlayers = async () => {
       try {
         const res = await API.get(`${URL}/notify/notify-players/${user?._id}`);
-        console.log(res.data, 'data')
-        let xyz = res.data.data.players.map((m) => { return { id: m.player_id, ...m } })
-        console.log(xyz, 'wxyz')
+        let xyz = res.data.data.players.map((m) => ({ id: m.player_id, ...m }));
         setSelectedPlayers(xyz || []);
       } catch (error) {
         console.error("Error fetching series list:", error);
@@ -55,48 +44,38 @@ export default function PlayerSelection() {
     }
   }, [user]);
 
-  console.log(selectedPlayers, user, 'selected players')
-
   const togglePlayer = (player, role) => {
     setSelectedPlayers(prev => {
       const index = prev.findIndex(p => p.id === player.id);
-
       if (index === -1) {
-        // Player not in list — add new with the role set to true
         return [...prev, { id: player.id, batting: role === 'batting', bowling: role === 'bowling' }];
       }
-
       const updatedPlayer = { ...prev[index], [role]: !prev[index][role] };
-
-      // If both batting & bowling become false, remove the player
       if (!updatedPlayer.batting && !updatedPlayer.bowling) {
         return prev.filter((_, i) => i !== index);
       }
-
-      // Otherwise, update the player's role
       return prev.map((p, i) => (i === index ? updatedPlayer : p));
     });
   };
 
-  // Inside PlayerSelection component
   const handleSave = async () => {
     try {
       if (user?._id) {
+        setLoading(true)
         const res = await API.post(`${URL}/notify/save-players`, {
           user_id: user?._id,
           players: [...selectedPlayers]
         });
+        setLoading(false)
         alert(res.data.message);
-      }
-      else {
-        navigate('/register')
+      } else {
+        navigate('/register');
       }
     } catch (err) {
       console.error("Error saving players", err);
       alert("Failed to save players.");
     }
   };
-
 
   const filteredPlayers = playersList.filter(player =>
     player.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -106,7 +85,6 @@ export default function PlayerSelection() {
     <div className="p-4 space-y-6">
       <h2 className="text-2xl font-bold">Select Players</h2>
 
-      {/* 🔍 Search Input */}
       <input
         type="text"
         placeholder="Search players..."
@@ -114,40 +92,47 @@ export default function PlayerSelection() {
         onChange={e => setSearchTerm(e.target.value)}
         className="w-full p-2 border rounded shadow"
       />
-      {/* 🧍 Player Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        {filteredPlayers.map(player => (
-          <div key={player.id} className="border p-4 rounded shadow">
-            <img
-              width='40'
-              height='40'
-              src={`https://firebasestorage.googleapis.com/v0/b/dreamelevenclone.appspot.com/o/images%2F${player.id}.png?alt=media&token=4644f151-3dfd-4883-9398-4191bed34854`}
-              alt=""
-            />
-            <p className="font-medium">{player.name}</p>
-            <div className="flex space-x-2 mt-2">
-              <button
-                className={`px-2 py-1 text-sm rounded ${selectedPlayers?.find((p) => p.id == player.id && p.batting)
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-200"
-                  }`}
-                onClick={() => togglePlayer(player, "batting")}
-              >
-                Batting
-              </button>
-              <button
-                className={`px-2 py-1 text-sm rounded ${selectedPlayers?.find((p) => p.id == player.id && p.bowling)
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
-                  }`}
-                onClick={() => togglePlayer(player, "bowling")}
-              >
-                Bowling
-              </button>
+
+      {/* 🔄 Show loader or content */}
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-600"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4">
+          {filteredPlayers.map(player => (
+            <div key={player.id} className="border p-4 rounded shadow">
+              <img
+                width='40'
+                height='40'
+                src={`https://firebasestorage.googleapis.com/v0/b/dreamelevenclone.appspot.com/o/images%2F${player.id}.png?alt=media&token=4644f151-3dfd-4883-9398-4191bed34854`}
+                alt=""
+              />
+              <p className="font-medium">{player.name}</p>
+              <div className="flex space-x-2 mt-2">
+                <button
+                  className={`px-2 py-1 text-sm rounded ${selectedPlayers?.find((p) => p.id == player.id && p.batting)
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-200"
+                    }`}
+                  onClick={() => togglePlayer(player, "batting")}
+                >
+                  Batting
+                </button>
+                <button
+                  className={`px-2 py-1 text-sm rounded ${selectedPlayers?.find((p) => p.id == player.id && p.bowling)
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                    }`}
+                  onClick={() => togglePlayer(player, "bowling")}
+                >
+                  Bowling
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* ✅ Selected Summary */}
       <div>
@@ -163,7 +148,6 @@ export default function PlayerSelection() {
           Save Selection
         </button>
       </div>
-
     </div>
   );
 }
