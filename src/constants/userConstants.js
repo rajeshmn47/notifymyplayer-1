@@ -100,4 +100,4 @@ export const URL = geturl();
 export const HTTPS_URL = "https://gamizo.duckdns.org";
 export const FURL = getfrontendurl();
 //export const NEW_URL = "https://dream11bet.duckdns.org"
-export const NEW_URL = "https://dream11bet.duckdns.org"
+export const NEW_URL = "https://fango11.duckdns.org"
