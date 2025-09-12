@@ -3,6 +3,7 @@ import { URL } from "@/constants/userConstants";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function PlayerSelection() {
   const { user } = useSelector(state => state.user || {});
@@ -67,7 +68,8 @@ export default function PlayerSelection() {
           players: [...selectedPlayers]
         });
         setLoading(false)
-        alert(res.data.message);
+        // alert(res.data.message);
+        toast.success("Players saved successfully!");
       } else {
         navigate('/register');
       }
@@ -83,6 +85,57 @@ export default function PlayerSelection() {
 
   return (
     <div className="p-4 space-y-6">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      <h2 className="text-2xl font-bold">Selected Players</h2>
+      <div>
+        <h3 className="text-lg font-semibold">Selected:</h3>
+        <p>Batting: {selectedPlayers.filter((player) => player.batting).length}</p>
+        <p>Bowling: {selectedPlayers.filter((player) => player.bowling).length}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        {filteredPlayers.filter((p) => (selectedPlayers.find((s) => s.id == p.id))).map(player => (
+          <div key={player.id} className="border p-4 rounded shadow">
+            <img
+              width='40'
+              height='40'
+              src={`https://firebasestorage.googleapis.com/v0/b/dreamelevenclone.appspot.com/o/images%2F${player.id}.png?alt=media&token=4644f151-3dfd-4883-9398-4191bed34854`}
+              alt=""
+            />
+            <p className="font-medium">{player.name}</p>
+            <div className="flex space-x-2 mt-2">
+              <button
+                className={`px-2 py-1 text-sm rounded ${selectedPlayers?.find((p) => p.id == player.id && p.batting)
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-200"
+                  }`}
+                onClick={() => togglePlayer(player, "batting")}
+              >
+                Batting
+              </button>
+              <button
+                className={`px-2 py-1 text-sm rounded ${selectedPlayers?.find((p) => p.id == player.id && p.bowling)
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200"
+                  }`}
+                onClick={() => togglePlayer(player, "bowling")}
+              >
+                Bowling
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <h2 className="text-2xl font-bold">Select Players</h2>
 
       <input
@@ -135,11 +188,6 @@ export default function PlayerSelection() {
       )}
 
       {/* ✅ Selected Summary */}
-      <div>
-        <h3 className="text-lg font-semibold">Selected:</h3>
-        <p>Batting: {selectedPlayers.filter((player) => player.batting).length}</p>
-        <p>Bowling: {selectedPlayers.filter((player) => player.bowling).length}</p>
-      </div>
       <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-md flex justify-center">
         <button
           className="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg"
