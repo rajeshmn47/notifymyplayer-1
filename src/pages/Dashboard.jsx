@@ -182,14 +182,14 @@ export default function PlayerSelection() {
           ))}
         </div>
 
-        <h2 className="text-2xl font-bold">Select Players</h2>
+        <h2 className="text-2xl font-bold my-2">Select Players</h2>
 
         <input
           type="text"
           placeholder="Search players..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="w-full p-2 border rounded shadow"
+          className="w-full p-4 my-4 border rounded shadow"
         />
 
         {/* 🔄 Show loader or content */}
