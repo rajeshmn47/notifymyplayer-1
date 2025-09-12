@@ -97,7 +97,7 @@ export default function PlayerSelection() {
         pauseOnHover
       />
       {/* Login/Signup Status Header */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+      <div className="bg-white p-4 shadow-md mb-4">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-800">Player Selection</h1>
 
@@ -142,12 +142,19 @@ export default function PlayerSelection() {
         </div>
       </div>
       <div className="p-4">
-        <h2 className="text-2xl font-bold">Selected Players</h2>
-        <div>
-          <h3 className="text-lg font-semibold">Selected:</h3>
-          <p>Batting: {selectedPlayers.filter((player) => player.batting).length}</p>
-          <p>Bowling: {selectedPlayers.filter((player) => player.bowling).length}</p>
+        <div className="bg-gray-50 mb-4 border rounded-xl p-4 shadow-sm flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">Your Selection</h3>
+            <p className="text-sm text-gray-500">Quick overview of chosen players</p>
+          </div>
+          <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+            Batting: {selectedPlayers.filter((player) => player.batting).length}
+          </span>
+          <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+            Bowling: {selectedPlayers.filter((player) => player.bowling).length}
+          </span>
         </div>
+
         <div className="grid grid-cols-2 gap-4">
           {filteredPlayers.filter((p) => (selectedPlayers.find((s) => s.id == p.id))).map(player => (
             <div key={player.id} className="border p-4 rounded shadow">
