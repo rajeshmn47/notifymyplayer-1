@@ -18,7 +18,7 @@ export default function PlayerSelection() {
     dispatch(loadUser());
     const fetchMatchesList = async () => {
       try {
-        const res = await API.get(`https://mangogames.fun/api/allplayers`);
+        const res = await API.get(`${URL}/allplayers`);
         let xyz = res.data.player.map((m) => ({ ...m }));
         setPlayersList(xyz || []);
       } catch (error) {
